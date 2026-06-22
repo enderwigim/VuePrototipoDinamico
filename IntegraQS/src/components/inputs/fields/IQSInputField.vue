@@ -1,9 +1,12 @@
+// Este componente funciona como contenedor para los campos de entrada de datos. De esta manera,
+podemos trabajar los componentes de Volt, // provenientes de sus Wrappers ya creados, sin
+preocupaciones. // De momento, este componente agrega un label y un texto de ayuda.
 <template>
   <div class="flex flex-col gap-1.5">
     <label v-if="label" :for="inputIdFinal" class="text-sm font-medium text-slate-700">
       {{ label }}
 
-      <span v-if="required" class="text-red-500"> * </span>
+      <span v-if="required" class="text-red-500">*</span>
     </label>
 
     <slot :id="inputIdFinal" :describedBy="describedBy" />
