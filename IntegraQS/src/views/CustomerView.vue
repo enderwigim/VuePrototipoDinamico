@@ -1,11 +1,12 @@
 <template>
+  <p>{{ loaded }}</p>
   <main v-if="loaded" class="flex flex-col h-full gap-6">
     <header class="p-5 bg-white border-b border-gray-200">
       <div class="flex items-start justify-between">
         <h1 class="text-2xl font-bold">Clientes</h1>
         <button class="px-4 py-2 text-white bg-blue-500 rounded">Guardar</button>
       </div>
-      <IQSHeader></IQSHeader>
+      <IQSHeader :header-fields="winFormat.Header" v-model:model="customer"></IQSHeader>
     </header>
     <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
       <div class="p-6 bg-white border rounded-xl">Aquí irán los tabs (Details)</div>
@@ -15,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 import IQSHeader from "@/components/IQSHeader.vue";
@@ -27,7 +28,7 @@ import {
   // saveCustomer,
   // saveNewCustomer,
 } from "@/services/customer.service";
-
+type DynamicModel = Record<string, string | number | boolean | null>;
 const route = useRoute();
 const loaded = ref(false);
 const winFormat = ref({
@@ -36,7 +37,7 @@ const winFormat = ref({
   Details: [],
   Lateral: [],
 });
-const customer = reactive({});
+const customer = ref<DynamicModel>({});
 
 type StateWin = "creation" | "modify" | null;
 const stateWin = ref<StateWin>(null);
@@ -48,13 +49,12 @@ async function loadData() {
   winFormat.value = format;
 
   if (id && id !== "new") {
-    Object.assign(customer, await getCustomer(Number(id)));
+    customer.value = await getCustomer(Number(id));
     stateWin.value = "modify";
   } else {
-    Object.assign(customer, await getNewCustomer());
+    customer.value = await getNewCustomer();
     stateWin.value = "creation";
   }
-  console.log(customer);
   loaded.value = true;
 }
 

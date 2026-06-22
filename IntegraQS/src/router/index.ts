@@ -1,13 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
+import CustomersView from "@/views/CustomerView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // {
-    //   path: '/customers',
-    //   name: 'customers',
-    //   component: CustomersView
-    // },
+    {
+      path: "/customers/:id",
+      name: "customers",
+      component: CustomersView,
+    },
   ],
 });
 
