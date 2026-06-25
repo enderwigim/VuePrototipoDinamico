@@ -1,7 +1,5 @@
 <template>
-  <p>Campos recibidos: {{ headerFields.length }}</p>
-  <p>Modelo recibido: {{ Object.keys(model).length }}</p>
-  <div class="grid grid-cols-6 gap-4">
+  <div :class="headerStyle">
     <IQSInputField
       v-for="(field, index) in headerFields"
       :key="field.name ?? field.field ?? index"
@@ -101,6 +99,7 @@ export type HeaderFieldState = "active" | "readOnly" | "disabled" | "hidden" | s
 
 const props = withDefaults(
   defineProps<{
+    headerStyle?: string;
     headerFields?: HeaderField[];
     model?: DynamicModel;
   }>(),

@@ -1,2 +1,41 @@
 @import "tailwindcss";
 @import "tailwindcss-primeui";
+
+/* El problema que existe con el tailwind es que no detecta las clases personalizadas por código, necesita verlo en el código fuente. */
+/* De esta manera se pueden usar clases personalizadas con tailwind */
+@source inline("
+  grid flex
+
+  grid-cols-1 grid-cols-2 grid-cols-3 grid-cols-4 grid-cols-5 grid-cols-6
+  sm:grid-cols-1 sm:grid-cols-2 sm:grid-cols-3 sm:grid-cols-4 sm:grid-cols-5 sm:grid-cols-6
+  md:grid-cols-1 md:grid-cols-2 md:grid-cols-3 md:grid-cols-4 md:grid-cols-5 md:grid-cols-6
+  lg:grid-cols-1 lg:grid-cols-2 lg:grid-cols-3 lg:grid-cols-4 lg:grid-cols-5 lg:grid-cols-6
+
+  gap-0 gap-1 gap-2 gap-3 gap-4 gap-5 gap-6 gap-8 gap-10 gap-12
+  sm:gap-0 sm:gap-1 sm:gap-2 sm:gap-3 sm:gap-4 sm:gap-5 sm:gap-6 sm:gap-8 sm:gap-10 sm:gap-12
+  md:gap-0 md:gap-1 md:gap-2 md:gap-3 md:gap-4 md:gap-5 md:gap-6 md:gap-8 md:gap-10 md:gap-12
+  lg:gap-0 lg:gap-1 lg:gap-2 lg:gap-3 lg:gap-4 lg:gap-5 lg:gap-6 lg:gap-8 lg:gap-10 lg:gap-12
+
+  p-0 p-1 p-2 p-3 p-4 p-5 p-6 p-8 p-10 p-12
+  px-0 px-1 px-2 px-3 px-4 px-5 px-6 px-8 px-10 px-12
+  py-0 py-1 py-2 py-3 py-4 py-5 py-6 py-8 py-10 py-12
+  pt-0 pt-1 pt-2 pt-3 pt-4 pt-5 pt-6 pt-8 pt-10 pt-12
+  pb-0 pb-1 pb-2 pb-3 pb-4 pb-5 pb-6 pb-8 pb-10 pb-12
+  pl-0 pl-1 pl-2 pl-3 pl-4 pl-5 pl-6 pl-8 pl-10 pl-12
+  pr-0 pr-1 pr-2 pr-3 pr-4 pr-5 pr-6 pr-8 pr-10 pr-12
+
+  sm:px-0 sm:px-1 sm:px-2 sm:px-3 sm:px-4 sm:px-5 sm:px-6 sm:px-8 sm:px-10 sm:px-12
+  md:px-0 md:px-1 md:px-2 md:px-3 md:px-4 md:px-5 md:px-6 md:px-8 md:px-10 md:px-12
+  lg:px-0 lg:px-1 lg:px-2 lg:px-3 lg:px-4 lg:px-5 lg:px-6 lg:px-8 lg:px-10 lg:px-12
+
+  sm:py-0 sm:py-1 sm:py-2 sm:py-3 sm:py-4 sm:py-5 sm:py-6 sm:py-8 sm:py-10 sm:py-12
+  md:py-0 md:py-1 md:py-2 md:py-3 md:py-4 md:py-5 md:py-6 md:py-8 md:py-10 md:py-12
+  lg:py-0 lg:py-1 lg:py-2 lg:py-3 lg:py-4 lg:py-5 lg:py-6 lg:py-8 lg:py-10 lg:py-12
+
+  m-0 m-1 m-2 m-3 m-4 m-5 m-6 m-8 m-10 m-12
+  mt-0 mt-1 mt-2 mt-3 mt-4 mt-5 mt-6 mt-8 mt-10 mt-12
+  sm:mt-0 sm:mt-1 sm:mt-2 sm:mt-3 sm:mt-4 sm:mt-5 sm:mt-6 sm:mt-8 sm:mt-10 sm:mt-12
+  md:mt-0 md:mt-1 md:mt-2 md:mt-3 md:mt-4 md:mt-5 md:mt-6 md:mt-8 md:mt-10 md:mt-12
+  lg:mt-0 lg:mt-1 lg:mt-2 lg:mt-3 lg:mt-4 lg:mt-5 lg:mt-6 lg:mt-8 lg:mt-10 lg:mt-12
+"
+);

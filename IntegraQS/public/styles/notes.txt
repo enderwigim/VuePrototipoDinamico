@@ -1,0 +1,36 @@
+Quiero que el diseño siga un estilo de aplicación empresarial moderna tipo ERP/SaaS, limpio, profesional y sobrio.
+
+La interfaz debe tener una estética clara, ordenada y funcional, con una combinación de fondo general gris muy claro, tarjetas blancas y una barra lateral oscura. El estilo debe transmitir una aplicación seria de gestión empresarial, pero moderna y agradable de usar.
+
+Paleta visual aproximada:
+
+* Fondo principal: gris muy claro, tipo `#F4F7FB` o `#F5F7FA`.
+* Superficies y tarjetas: blanco puro o casi blanco, `#FFFFFF`.
+* Bordes suaves: gris claro azulado, `#E2E8F0` o `#D8DEE8`.
+* Texto principal: azul noche / slate oscuro, `#0F172A`.
+* Texto secundario: gris azulado, `#64748B`.
+* Barra lateral: azul marino muy oscuro, casi negro, `#07111F` o `#0B1626`.
+* Color principal de acción: azul intenso, `#2F5BEA` o `#2563EB`.
+* Hover/acento activo: azul más vivo, `#1D4ED8`.
+* Elementos deshabilitados: gris claro, `#CBD5E1`.
+
+Estilo de componentes:
+
+* Usar tarjetas blancas con bordes finos y sombras muy suaves.
+* Los bordes deben ser redondeados, normalmente entre `rounded-lg` y `rounded-xl`.
+* Evitar colores demasiado saturados salvo en acciones principales o estados activos.
+* Los botones principales deben usar azul intenso, texto blanco y hover ligeramente más oscuro.
+* Los botones secundarios o deshabilitados deben usar gris claro.
+* Los inputs deben ser blancos, con borde gris claro, altura cómoda, padding horizontal y foco azul suave.
+* Las tablas deben ser limpias, con encabezados en texto oscuro, líneas divisorias finas y mucho espacio horizontal.
+* La barra lateral debe tener fondo azul marino oscuro, texto gris claro y el elemento activo resaltado con azul intenso.
+* Los iconos pueden ir dentro de pequeños contenedores cuadrados redondeados.
+* Mantener mucho espacio en blanco, separación clara entre bloques y una jerarquía visual sencilla.
+
+Estilo general:
+
+* Diseño minimalista, corporativo y moderno.
+* Inspiración visual: dashboard empresarial, ERP moderno, panel administrativo SaaS.
+* No usar gradientes fuertes ni sombras exageradas.
+* Priorizar claridad, legibilidad y sensación de orden.
+* La interfaz debe parecer profesional, estable y preparada para uso diario en una empresa.
