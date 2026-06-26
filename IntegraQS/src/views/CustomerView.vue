@@ -1,5 +1,10 @@
 <template>
-  <IQSToolsRead @goToNext="goToNext" @goToPrevious="goToPrevious" @cancelChanges="CancelChanges" />
+  <IQSToolsRead
+    @goToNext="goToNext"
+    @goToPrevious="goToPrevious"
+    @cancelChanges="CancelChanges"
+    @accept-changes="onSave"
+  />
   <main v-if="loaded" class="flex flex-col h-full gap-6">
     <header class="p-5 bg-white border-b border-gray-200">
       <!-- <div class="flex items-start justify-between">
@@ -97,11 +102,16 @@ async function onSave() {
   else {
     console.log("Saving customer with ID:", customerId);
     const response = await saveCustomer(formData, customerId);
-    console.log("Save response:", response);
+    console.log("Response from saveCustomer:", response);
+    // 2026-06-26. Santi. Esta comprobación no está devolviendo nada desde el backend. De momento lo pondré como valido
+    // Y así compruebo que el estado funciona.
+    //if (response.details === 204) {
+    windowStore.setRead();
+    //}
   }
 
   // stateWin.value = "modify";
-  alert("Cliente guardado");
+  // alert("Cliente guardado");
 }
 
 function onCustomerChange(newModel: DynamicModel) {

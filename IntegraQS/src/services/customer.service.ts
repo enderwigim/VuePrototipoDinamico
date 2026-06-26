@@ -17,8 +17,6 @@ export async function getCustomerFormat() {
 }
 
 export async function saveCustomer(formData: FormData, id: Number) {
-  console.log("Saving customer with ID SAVECUSTOMER:", id);
-  console.log("FormData entries:", formData);
   const response = await axios.put(`${API_PATH}customer/${id}`, formData);
   return response.data;
 }
