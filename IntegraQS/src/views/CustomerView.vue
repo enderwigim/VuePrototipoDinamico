@@ -4,6 +4,10 @@
     @goToPrevious="goToPrevious"
     @cancelChanges="CancelChanges"
     @accept-changes="onSave"
+    @goToFirst="goToFirst"
+    @goToLast="goToLast"
+    @createNew="onCreateNew"
+    @deleteCurrent="onDeleteCurrent"
   />
   <main v-if="loaded" class="flex flex-col h-full gap-6">
     <header class="p-5 bg-white border-b border-gray-200">
@@ -50,7 +54,10 @@ import {
   getNewCustomer,
   getNextCustomer,
   getPreviousCustomer,
+  getFirstCustomer,
+  getLastCustomer,
   saveCustomer,
+  deleteCustomer,
   saveNewCustomer,
 } from "@/services/customer.service";
 import { buildContainerClasses } from "@/utils/containerBuilder";
@@ -102,8 +109,13 @@ async function onSave() {
     }
   });
 
-  if (windowStore.winState == "creation") await saveNewCustomer(formData);
-  else {
+  if (windowStore.winState == "creation") {
+    const response = await saveNewCustomer(formData);
+    const redirect = response.redirect;
+    windowStore.setRead();
+    await router.push(redirect);
+    loadData();
+  }else {
     console.log("Saving customer with ID:", customerId);
     const response = await saveCustomer(formData, customerId);
     console.log("Response from saveCustomer:", response);
@@ -144,8 +156,39 @@ async function goToPrevious() {
   loadData();
 }
 
-function CancelChanges() {
+async function goToFirst(){
+  const id = await getFirstCustomer();
+  await router.push(`/customers/${id}`);
   loadData();
+}
+
+async function goToLast(){
+  const id = await getLastCustomer();
+  await router.push(`/customers/${id}`);
+  loadData();
+}
+
+async function onCreateNew(){
+  await router.push(`/customers/new`);
+  loadData();
+}
+
+async function onDeleteCurrent(){
+  if (confirm("¿Desea borrar este cliente?") == true){
+    const id = route.params.id;
+    await deleteCustomer(Number(id));
+    goToPrevious();
+  }
+}
+
+function CancelChanges() {
+  const id = route.params.id;
+
+  if (id && id !== 'new'){
+    loadData();
+  }else{
+    goToFirst();
+  }
 }
 
 onMounted(loadData);

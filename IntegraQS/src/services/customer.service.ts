@@ -7,7 +7,6 @@ export async function getCustomer(id: Number) {
   return response.data;
 }
 
-
 export async function getNextCustomer(id: Number) {
   const response = await axios.get(`${API_PATH}customer/next/${id}`);
   return response.data;
@@ -15,6 +14,16 @@ export async function getNextCustomer(id: Number) {
 
 export async function getPreviousCustomer(id: Number) {
   const response = await axios.get(`${API_PATH}customer/prev/${id}`);
+  return response.data;
+}
+
+export async function getFirstCustomer() {
+  const response = await axios.get(`${API_PATH}customer/first`);
+  return response.data;
+}
+
+export async function getLastCustomer() {
+  const response = await axios.get(`${API_PATH}customer/last`);
   return response.data;
 }
 
@@ -34,5 +43,11 @@ export async function saveCustomer(formData: FormData, id: Number) {
 
 export async function saveNewCustomer(formData: FormData) {
   const response = await axios.post(`${API_PATH}customer/new`, formData);
+  return response.data;
+}
+
+
+export async function deleteCustomer(id: Number) {
+  const response = await axios.delete(`${API_PATH}customer/${id}`);
   return response.data;
 }
