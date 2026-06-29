@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, useAttrs } from "vue";
+import { computed, ref } from "vue";
 import DataTable from "@/volt/DataTable.vue";
 import Paginator from "@/volt/Paginator.vue";
 import type { DataTableProps } from "primevue";

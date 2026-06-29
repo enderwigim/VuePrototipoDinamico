@@ -37,13 +37,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 import IQSHeader from "@/components/IQSHeader.vue";
 import IQSToolsRead from "@/components/Tools/IQSTools.vue";
 import { useWindowStore } from "@/stores/windowStore";
-
+import type { DynamicModel } from "@/types/types";
 import {
   getCustomer,
   getCustomerFormat,
@@ -52,7 +52,7 @@ import {
   saveNewCustomer,
 } from "@/services/customer.service";
 import { buildContainerClasses } from "@/utils/containerBuilder";
-type DynamicModel = Record<string, string | number | boolean | null>;
+
 const route = useRoute();
 const loaded = ref(false);
 const winFormat = ref({
@@ -64,11 +64,8 @@ const winFormat = ref({
   Details: [],
   Lateral: [],
 });
-const customer = ref<DynamicModel>({});
-
 const headerStyle = ref<string>("");
-// type StateWin = "creation" | "modify" | "read";
-// const stateWin = ref<StateWin>("read");
+const customer = ref<DynamicModel>({});
 const windowStore = useWindowStore();
 async function loadData() {
   const id = route.params.id;
@@ -80,11 +77,9 @@ async function loadData() {
   if (id && id !== "new") {
     customer.value = await getCustomer(Number(id));
     windowStore.setRead();
-    // stateWin.value = "read";
   } else {
     customer.value = await getNewCustomer();
     windowStore.setCreation();
-    // stateWin.value = "creation";
   }
   loaded.value = true;
 }

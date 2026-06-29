@@ -60,42 +60,8 @@ import IQSInputTextBase from "@/components/inputs/base/IQSInputTextBase.vue";
 import IQSSelectBase from "@/components/inputs/base/IQSSelectBase.vue";
 import IQSCheckBoxBase from "@/components/inputs/base/IQSCheckBoxBase.vue";
 
-export type FieldValue = string | number | boolean | null;
-
-export type DynamicModel = Record<string, FieldValue>;
-
-export interface HeaderField {
-  name: string;
-  size: string;
-  type: HeaderFieldType;
-  field: string | null;
-  state: HeaderFieldState;
-  title: string;
-
-  inputClass?: string;
-  labelClass?: string;
-
-  placeholder?: string;
-  mask?: string;
-  options?: HeaderOption[];
-}
-
-export interface HeaderOption {
-  title: string;
-  value: string | number;
-  disabled: boolean;
-}
-
-export type HeaderFieldType =
-  | "number"
-  | "string"
-  | "mask"
-  | "tag"
-  | "select"
-  | "select linked"
-  | string;
-
-export type HeaderFieldState = "active" | "readOnly" | "disabled" | "hidden" | string;
+// Importación de tipos
+import type { HeaderField, FieldValue, DynamicModel } from "@/types/types";
 
 const props = withDefaults(
   defineProps<{
