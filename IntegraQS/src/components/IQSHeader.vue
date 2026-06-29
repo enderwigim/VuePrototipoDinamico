@@ -11,6 +11,7 @@
         :model-value="getModelValue(field)"
         @update:model-value="setModelValue(field, $event)"
         :placeholder="field.placeholder"
+        :readonly="field.state === 'readOnly'"
       >
       </IQSInputTextBase>
 
@@ -19,6 +20,7 @@
         :model-value="getModelValue(field)"
         @update:model-value="setModelValue(field, $event)"
         :placeholder="field.placeholder"
+        :readonly="field.state === 'readOnly'"
       >
       </IQSInputNumberBase>
 
@@ -27,6 +29,7 @@
         :model-value="getModelValue(field)"
         @update:model-value="setModelValue(field, $event)"
         :placeholder="field.placeholder"
+        :readonly="field.state === 'readOnly'"
         :mask="field.mask"
       >
       </IQSInputMaskBase>
@@ -36,6 +39,7 @@
         :model-value="getSelectModelValue(field)"
         @update:model-value="setSelectModelValue(field, $event)"
         :placeholder="field.placeholder"
+        :readonly="field.state === 'readOnly'"
         :options="field.options"
         option-label="title"
         option-value="value"
@@ -45,6 +49,7 @@
         v-if="field.type === 'checkbox'"
         :model-value="getModelValue(field)"
         @update:model-value="setModelValue(field, $event)"
+        :readonly="field.state === 'readOnly'"
       ></IQSCheckBoxBase>
     </IQSInputField>
   </div>

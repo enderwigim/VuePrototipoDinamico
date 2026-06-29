@@ -37,23 +37,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { ref, onMounted, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import IQSHeader from "@/components/IQSHeader.vue";
 import IQSToolsRead from "@/components/Tools/IQSTools.vue";
 import { useWindowStore } from "@/stores/windowStore";
-import type { DynamicModel } from "@/types/types";
+
 import {
   getCustomer,
   getCustomerFormat,
   getNewCustomer,
+  getNextCustomer,
+  getPreviousCustomer,
   saveCustomer,
   saveNewCustomer,
 } from "@/services/customer.service";
 import { buildContainerClasses } from "@/utils/containerBuilder";
-
+type DynamicModel = Record<string, string | number | boolean | null>;
 const route = useRoute();
+const router = useRouter();
+
 const loaded = ref(false);
 const winFormat = ref({
   Header: {
@@ -64,8 +68,11 @@ const winFormat = ref({
   Details: [],
   Lateral: [],
 });
-const headerStyle = ref<string>("");
 const customer = ref<DynamicModel>({});
+
+const headerStyle = ref<string>("");
+// type StateWin = "creation" | "modify" | "read";
+// const stateWin = ref<StateWin>("read");
 const windowStore = useWindowStore();
 async function loadData() {
   const id = route.params.id;
@@ -77,9 +84,11 @@ async function loadData() {
   if (id && id !== "new") {
     customer.value = await getCustomer(Number(id));
     windowStore.setRead();
+    // stateWin.value = "read";
   } else {
     customer.value = await getNewCustomer();
     windowStore.setCreation();
+    // stateWin.value = "creation";
   }
   loaded.value = true;
 }
@@ -121,15 +130,17 @@ function onCustomerChange(newModel: DynamicModel) {
   customer.value = newModel;
 }
 
-function goToNext() {
+async function goToNext() {
   const id = route.params.id;
-  route.params.id = String(Number(id) + 1);
+  const newID = await getNextCustomer(Number(id));
+  await router.push(`/customers/${newID}`);
   loadData();
 }
 
-function goToPrevious() {
+async function goToPrevious() {
   const id = route.params.id;
-  route.params.id = String(Number(id) - 1);
+  const newID = await getPreviousCustomer(Number(id));
+  await router.push(`/customers/${newID}`);
   loadData();
 }
 

@@ -7,6 +7,17 @@ export async function getCustomer(id: Number) {
   return response.data;
 }
 
+
+export async function getNextCustomer(id: Number) {
+  const response = await axios.get(`${API_PATH}customer/next/${id}`);
+  return response.data;
+}
+
+export async function getPreviousCustomer(id: Number) {
+  const response = await axios.get(`${API_PATH}customer/prev/${id}`);
+  return response.data;
+}
+
 export async function getNewCustomer() {
   const response = await axios.get(`${API_PATH}customer/new`);
   return response.data;
