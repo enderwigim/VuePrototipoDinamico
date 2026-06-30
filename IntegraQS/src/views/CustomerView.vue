@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import IQSHeader from "@/components/IQSHeader.vue";
@@ -111,13 +111,13 @@ async function onSave() {
 
   if (windowStore.winState == "creation") {
     const response = await saveNewCustomer(formData);
-    if (response.success){
+    if (response.success) {
       const redirect = response.redirect;
       windowStore.setRead();
       await router.push(redirect);
       loadData();
     }
-  }else {
+  } else {
     console.log("Saving customer with ID:", customerId);
     const response = await saveCustomer(formData, customerId);
     console.log("Response from saveCustomer:", response);
@@ -158,25 +158,25 @@ async function goToPrevious() {
   loadData();
 }
 
-async function goToFirst(){
+async function goToFirst() {
   const id = await getFirstCustomer();
   await router.push(`/customers/${id}`);
   loadData();
 }
 
-async function goToLast(){
+async function goToLast() {
   const id = await getLastCustomer();
   await router.push(`/customers/${id}`);
   loadData();
 }
 
-async function onCreateNew(){
+async function onCreateNew() {
   await router.push(`/customers/new`);
   loadData();
 }
 
-async function onDeleteCurrent(){
-  if (confirm("¿Desea borrar este cliente?") == true){
+async function onDeleteCurrent() {
+  if (confirm("¿Desea borrar este cliente?") == true) {
     const id = route.params.id;
     await deleteCustomer(Number(id));
     goToPrevious();
@@ -186,9 +186,9 @@ async function onDeleteCurrent(){
 function CancelChanges() {
   const id = route.params.id;
 
-  if (id && id !== 'new'){
+  if (id && id !== "new") {
     loadData();
-  }else{
+  } else {
     goToFirst();
   }
 }
