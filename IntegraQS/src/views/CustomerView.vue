@@ -111,10 +111,12 @@ async function onSave() {
 
   if (windowStore.winState == "creation") {
     const response = await saveNewCustomer(formData);
-    const redirect = response.redirect;
-    windowStore.setRead();
-    await router.push(redirect);
-    loadData();
+    if (response.success){
+      const redirect = response.redirect;
+      windowStore.setRead();
+      await router.push(redirect);
+      loadData();
+    }
   }else {
     console.log("Saving customer with ID:", customerId);
     const response = await saveCustomer(formData, customerId);

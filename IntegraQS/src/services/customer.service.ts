@@ -41,9 +41,25 @@ export async function saveCustomer(formData: FormData, id: Number) {
   return response.data;
 }
 
+// export async function saveNewCustomer(formData: FormData) {
+//   const response = await axios.post(`${API_PATH}customer/new`, formData);
+//   console.log(response.data)
+//   return response.data;
+// }
 export async function saveNewCustomer(formData: FormData) {
-  const response = await axios.post(`${API_PATH}customer/new`, formData);
-  return response.data;
+  try {
+    const response = await axios.post(`${API_PATH}customer/new`, formData);
+    console.log(response.data)
+    return response.data;
+  } catch (error: any) {
+    console.log(error.response.data)
+    if (error.response) {
+      // console.log("Backend error:", error.response.data.detail);
+      alert(error.response.data.detail)
+      return error.response.data;
+    }
+    throw error;
+  }
 }
 
 
