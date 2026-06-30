@@ -106,11 +106,14 @@ const inputSelectPt = {
     overflow-hidden
   `,
 
+  "pt:listContainer:class": `
+    max-h-72
+    overflow-y-auto
+    overflow-x-hidden
+  `,
+
   "pt:list:class": `
     p-1
-
-    max-h-72
-    overflow-auto
   `,
 
   "pt:option:class": `
