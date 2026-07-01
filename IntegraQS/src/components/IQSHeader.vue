@@ -66,12 +66,12 @@ import IQSSelectBase from "@/components/inputs/base/IQSSelectBase.vue";
 import IQSCheckBoxBase from "@/components/inputs/base/IQSCheckBoxBase.vue";
 
 // Importación de tipos
-import type { HeaderField, FieldValue, DynamicModel } from "@/types/types";
+import type { Field, FieldValue, DynamicModel } from "@/types/types";
 
 const props = withDefaults(
   defineProps<{
     headerStyle?: string;
-    headerFields?: HeaderField[];
+    headerFields?: Field[];
     model?: DynamicModel;
   }>(),
   {
@@ -84,7 +84,7 @@ const emit = defineEmits<{
   (e: "update:model", value: DynamicModel): void;
 }>();
 
-function getModelValue(field: HeaderField): FieldValue {
+function getModelValue(field: Field): FieldValue {
   if (!field.field) {
     return null;
   }
@@ -92,7 +92,7 @@ function getModelValue(field: HeaderField): FieldValue {
   return props.model[field.field] ?? null;
 }
 
-function setModelValue(field: HeaderField, value: FieldValue): void {
+function setModelValue(field: Field, value: FieldValue): void {
   if (!field.field) {
     return;
   }
@@ -104,7 +104,7 @@ function setModelValue(field: HeaderField, value: FieldValue): void {
 }
 
 // CASO SELECT
-function getSelectModelValue(field: HeaderField): FieldValue {
+function getSelectModelValue(field: Field): FieldValue {
   const value = getModelValue(field);
 
   if (!field.options) {
@@ -122,7 +122,7 @@ function getSelectModelValue(field: HeaderField): FieldValue {
   return option.value;
 }
 
-function setSelectModelValue(field: HeaderField, value: FieldValue): void {
+function setSelectModelValue(field: Field, value: FieldValue): void {
   const currentValue = getModelValue(field);
 
   let newValue = value;

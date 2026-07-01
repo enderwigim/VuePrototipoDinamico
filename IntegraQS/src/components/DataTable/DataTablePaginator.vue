@@ -1,11 +1,5 @@
 <template>
-  <section
-    class="w-full overflow-hidden rounded-2xl border border-[var(--integra-border)] bg-[var(--integra-card)] shadow-sm"
-  >
-    <header v-if="$slots.header" class="border-b border-[var(--integra-border)] px-6 py-5">
-      <slot name="header" />
-    </header>
-
+  <section class="w-full overflow-hidden rounded-2xl border shadow-sm">
     <div class="overflow-x-auto">
       <!-- v-bind="attrs" Esto hará que todos los attrs que tenga el padre, vendrán al hijo. Es util para setear cosas allí. -->
       <DataTable :value="paginatedData" v-bind="dataTableBindings">
@@ -13,7 +7,7 @@
       </DataTable>
     </div>
 
-    <footer class="flex justify-center border-t border-[var(--integra-border)] px-6 py-4">
+    <footer class="flex justify-center border-t px-6 py-4">
       <Paginator
         :first="first"
         :rows="rows"
