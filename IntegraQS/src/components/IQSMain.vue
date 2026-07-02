@@ -5,7 +5,6 @@
   - Tab: Componente que representa un botón de solapa. Debe ir dentro de TabList.
   - TabPanels: Componente contenedor de los paneles de contenido de las solapas.
   - TabPanel: Componente que representa un panel de contenido de una solapa.
-  
   -->
   <Tabs :value="props.mainTabs[0]?.value ?? '0'">
     <TabList>
@@ -15,7 +14,23 @@
     </TabList>
     <TabPanels>
       <TabPanel v-for="tab in props.mainTabs" :key="tab.title" :value="tab.value">
-        <p>hola</p>
+        <template v-for="control in tab.controls">
+          <DataTable v-if="control.type == 'table'" :data="[]" :rows="6" :key="control.name">
+            <DataColumn
+              v-for="column in control.columns"
+              :key="column.key"
+              :field="column.field ?? column.key"
+              :header="column.header"
+            />
+          </DataTable>
+          <IQSInputTextBase
+            v-if="control.type === 'string'"
+            :placeholder="control.placeholder"
+            :readonly="control.state === 'readOnly'"
+            :key="control.name"
+          >
+          </IQSInputTextBase>
+        </template>
       </TabPanel>
     </TabPanels>
   </Tabs>
@@ -29,6 +44,11 @@ import TabList from "@/components/Tabs/IQSTabListBase.vue";
 import Tab from "@/components/Tabs/IQSTabBase.vue";
 import TabPanels from "@/components/Tabs/IQSTabPanelsBase.vue";
 import TabPanel from "@/components/Tabs/IQSTabPanelBase.vue";
+// Importación de componentes internos de tabs.
+import DataTable from "@/components/DataTable/DataTablePaginator.vue";
+import DataColumn from "@/components/DataTable/DataColumn.vue";
+// Importación de componentes internos de inputs.
+import IQSInputTextBase from "@/components/inputs/base/IQSInputTextBase.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -42,8 +62,8 @@ const props = withDefaults(
   },
 );
 
-// import DataTable from "@/components/DataTable/DataTablePaginator.vue";
-// import DataColumn from "@/components/DataTable/DataColumn.vue";
+console.log("props.mainTabs", props.mainTabs);
+
 // const customersTableProps = {
 //   removableSort: true,
 //   sortMode: "multiple",

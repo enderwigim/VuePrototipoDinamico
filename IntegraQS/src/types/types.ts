@@ -30,6 +30,7 @@ export interface TableColumn {
   headerClass: string;
   columnConfig: DynamicModel;
 }
+
 export interface HeaderOption {
   title: string;
   value: string | number;
