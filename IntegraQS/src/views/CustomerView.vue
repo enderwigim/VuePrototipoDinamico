@@ -60,6 +60,7 @@ import {
   deleteCustomer,
   saveNewCustomer,
 } from "@/services/customer.service";
+import api from "@/services/axios"
 import { buildContainerClasses } from "@/utils/containerBuilder";
 type DynamicModel = Record<string, string | number | boolean | null>;
 const route = useRoute();
@@ -87,7 +88,7 @@ async function loadData() {
 
   winFormat.value = format;
   headerStyle.value = buildContainerClasses(format.Header.style);
-  console.log("Header style after build:", headerStyle.value);
+  // console.log("Header style after build:", headerStyle.value);
   if (id && id !== "new") {
     customer.value = await getCustomer(Number(id));
     windowStore.setRead();

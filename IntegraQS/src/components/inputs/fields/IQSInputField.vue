@@ -2,7 +2,8 @@
 podemos trabajar los componentes de Volt, // provenientes de sus Wrappers ya creados, sin
 preocupaciones. // De momento, este componente agrega un label y un texto de ayuda.
 <template>
-  <div class="flex flex-col gap-1.5">
+  <div class="flex flex-col gap-1.5"
+        :style="{ gridColumn: `span ${size} / span ${size}` }">
     <label v-if="label" :for="inputIdFinal" class="text-sm font-medium text-slate-700">
       {{ label }}
 
@@ -25,6 +26,7 @@ interface Props {
   inputId?: string;
   required?: boolean;
   helpText?: string;
+  size?: number;
 }
 
 const props = defineProps<Props>();
