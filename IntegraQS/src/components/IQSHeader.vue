@@ -5,6 +5,7 @@
       :key="field.name ?? field.field ?? index"
       :label="field.title"
       :inputId="field.name"
+      :size="Number(field.size)"
     >
       <IQSInputTextBase
         v-if="field.type === 'string'"
@@ -79,7 +80,7 @@ const props = withDefaults(
     model: () => ({}),
   },
 );
-console.log(props.model);
+// console.log(props.model);
 const emit = defineEmits<{
   (e: "update:model", value: DynamicModel): void;
 }>();

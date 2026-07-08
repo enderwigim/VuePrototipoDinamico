@@ -34,19 +34,27 @@
       ></IQSHeader>
     </header>
     <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
-      <div class="p-6 bg-white border rounded-xl">Aquí irán los tabs (Details)</div>
+      <div class="p-6 bg-white border rounded-xl">
+        <IQSMain :model="customer" :main-tabs="winFormat.Details" :detail-values="[]"></IQSMain>
+      </div>
       <aside class="p-6 bg-white border rounded-xl">Aquí irán el lateral</aside>
     </section>
   </main>
 </template>
 
 <script setup lang="ts">
+import IQSMain from "@/components/IQSMain.vue";
+
+// 2026-06-30. Santi. Hasta aquí todo funciona correctamente. Voy a empezar a trabajar en la información recogida por una tabla. Por lo que debo incorporar datos
+// de prueba para comprobar que funciona correctamente.
+
 import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import IQSHeader from "@/components/IQSHeader.vue";
 import IQSToolsRead from "@/components/Tools/IQSTools.vue";
 import { useWindowStore } from "@/stores/windowStore";
+import type { WinFormat } from "@/types/types";
 
 import {
   getCustomer,
@@ -66,7 +74,7 @@ const route = useRoute();
 const router = useRouter();
 
 const loaded = ref(false);
-const winFormat = ref({
+const winFormat = ref<WinFormat>({
   Header: {
     style: {},
     fields: [],
