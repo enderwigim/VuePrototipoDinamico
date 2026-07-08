@@ -12,17 +12,12 @@ const router = createRouter({
       component: CustomersView,
     },
     {
-      path: "/iqs/:windowName/:id",
-      name: "iqs",
-      component: IQSView,
-    },
-    {
       path: "/login",
       name: "login",
       component: LoginView,
     },
     {
-      path: "/iqs/:windowName",
+      path: "/iqs/:windowName/:id?",
       name: "iqs",
       component: IQSView,
     }

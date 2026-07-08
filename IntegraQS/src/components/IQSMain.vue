@@ -15,7 +15,7 @@
     <TabPanels>
       <TabPanel v-for="tab in props.mainTabs" :key="tab.title" :value="tab.value">
         <template v-for="control in tab.controls">
-          <DataTable v-if="control.type == 'table'" :data="[]" :rows="6" :key="control.name">
+          <DataTable v-if="control.type == 'table'" :data="(props.detailValues[tab.value] ?? []) as unknown[]" :rows="6" :key="control.name">
             <DataColumn
               v-for="column in control.columns"
               :key="column.key"
@@ -55,6 +55,7 @@ const props = withDefaults(
     mainStyle?: string;
     mainTabs: DetailTab[];
     model?: DynamicModel;
+    detailValues: DynamicModel[];
   }>(),
   {
     headerFields: () => [],
@@ -62,7 +63,12 @@ const props = withDefaults(
   },
 );
 
-console.log("props.mainTabs", props.mainTabs);
+const dataExample = [
+  {}
+]
+
+// console.log("props.mainTabs", props.mainTabs);
+// console.log("props.detailData", props.detailValues[0]);
 
 // const customersTableProps = {
 //   removableSort: true,

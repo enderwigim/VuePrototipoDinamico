@@ -4,26 +4,13 @@
         @deleteCurrent="onDeleteCurrent" />
     <main v-if="loaded" class="flex flex-col h-full gap-6">
         <header class="p-5 bg-white border-b border-gray-200">
-            <!-- <div class="flex items-start justify-between">
-            <h1 class="text-2xl font-bold">Clientes</h1>
-            <button
-            :class="
-                canSave
-                ? 'px-4 py-2 text-white bg-blue-500 rounded'
-                : 'px-4 py-2 text-gray-400 bg-gray-200 rounded cursor-not-allowed'
-            "
-            :disabled="!canSave"
-            @click="onSave"
-            >
-                Guardar
-            </button>
-        </div> -->
-
             <IQSHeader :header-style="headerStyle" :header-fields="winFormat.Header.fields" :model="headerModel"
                 @update:model="onChange"></IQSHeader>
         </header>
         <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
-            <div class="p-6 bg-white border rounded-xl">Aquí irán los tabs (Details)</div>
+            <div class="p-6 bg-white border rounded-xl">
+                <IQSMain :model="headerModel" :main-tabs="winFormat.Details" :detail-values="detailsModel"></IQSMain>
+            </div>
             <aside class="p-6 bg-white border rounded-xl">Aquí irán el lateral</aside>
         </section>
     </main>
@@ -34,6 +21,7 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import IQSHeader from "@/components/IQSHeader.vue";
+import IQSMain from "@/components/IQSMain.vue";
 import IQSToolsRead from "@/components/Tools/IQSTools.vue";
 import { useWindowStore } from "@/stores/windowStore";
 
@@ -53,6 +41,7 @@ const winFormat = ref({
     Header: {
         style: {},
         fields: [],
+        primaryKey: "",
     },
     Footer: [],
     Details: [],
@@ -70,20 +59,20 @@ async function loadData() {
     const id = route.params.id as string | undefined;
 
     // 1. Formato de ventana
-    const windowData = await getInfoWindow(windowName, id);
+    const windowData = await getInfoWindow(windowName);
 
     // 2. Datos de cabecera
-    const headerData = await getInfoHeader(windowName, windowData);
+    const headerData = await getInfoHeader(windowName, windowData, id);
 
     //3. Datos de detalles
     const detailsData = []
-    if (windowData.Details.length > 0){
-        for (var detail of windowData.Details){
+    if (windowData.Details.length > 0) {
+        for (var detail of windowData.Details) {
             const detailData = await getInfoDetails(windowName, detail.value, headerData[0][windowData.Header.primaryKey], windowData);
             const detailModel = {
-                [detail.value] : detailData
+                [detail.value]: detailData
             };
-            detailsData.push(detailModel)
+            detailsData[detail.value] = detailData
         }
     }
 
@@ -91,7 +80,6 @@ async function loadData() {
     headerStyle.value = buildContainerClasses(winFormat.value.Header.style);
     headerModel.value = headerData[0] ?? {};
     detailsModel.value = detailsData;
-    console.log("Detalles: ", detailsModel.value)
 
     loaded.value = true;
 }
@@ -141,8 +129,12 @@ function onChange(newModel: DynamicModel) {
 }
 
 async function goToNext() {
-    // const id = route.params.id;
-    // const newID = await getNextCustomer(Number(id));
+    var id: string | number | undefined | string[] | boolean | null = route.params.id;
+    if (id === undefined){
+        id = headerModel.value[winFormat.value.Header.primaryKey]
+    }
+    console.log(id)
+    // const newID = await getNextHeaderID(Number(id));
     // await router.push(`/customers/${newID}`);
     // loadData();
 }

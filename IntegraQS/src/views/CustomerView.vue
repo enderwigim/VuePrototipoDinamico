@@ -35,7 +35,7 @@
     </header>
     <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
       <div class="p-6 bg-white border rounded-xl">
-        <IQSMain :model="customer" :main-tabs="winFormat.Details"></IQSMain>
+        <IQSMain :model="customer" :main-tabs="winFormat.Details" :detail-values="[]"></IQSMain>
       </div>
       <aside class="p-6 bg-white border rounded-xl">Aquí irán el lateral</aside>
     </section>
