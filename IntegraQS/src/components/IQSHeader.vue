@@ -67,12 +67,12 @@ import IQSSelectBase from "@/components/inputs/base/IQSSelectBase.vue";
 import IQSCheckBoxBase from "@/components/inputs/base/IQSCheckBoxBase.vue";
 
 // Importación de tipos
-import type { HeaderField, FieldValue, DynamicModel } from "@/types/types";
+import type { Field, FieldValue, DynamicModel } from "@/types/types";
 
 const props = withDefaults(
   defineProps<{
     headerStyle?: string;
-    headerFields?: HeaderField[];
+    headerFields?: Field[];
     model?: DynamicModel;
   }>(),
   {
