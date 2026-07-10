@@ -28,7 +28,15 @@ import { useWindowStore } from "@/stores/windowStore";
 import {
     getInfoWindow,
     getInfoHeader,
-    getInfoDetails
+    getDefaultInfoHeader,
+    getNextHeaderID,
+    getInfoDetails,
+    getPrevHeaderID,
+    getFirstHeaderID,
+    getLastHeaderID,
+    deleteRegister,
+    saveNewHeader,
+    saveHeader
 } from "@/services/iqs.service";
 import api from "@/services/axios"
 import { buildContainerClasses } from "@/utils/containerBuilder";
@@ -60,120 +68,149 @@ async function loadData() {
 
     // 1. Formato de ventana
     const windowData = await getInfoWindow(windowName);
+    
+    if (id === "new"){
+         // 2. Datos default de cabecera
+        const headerData = await getDefaultInfoHeader(windowName, windowData);
+        //3. Datos de detalles
+        const detailsData: DynamicModel[] = []
 
-    // 2. Datos de cabecera
-    const headerData = await getInfoHeader(windowName, windowData, id);
+        winFormat.value = windowData;
+        headerStyle.value = buildContainerClasses(winFormat.value.Header.style);
+        headerModel.value = headerData[0] ?? {};
+        detailsModel.value = detailsData;
+        windowStore.setCreation()
+    }else{
+        // 2. Datos de cabecera
+        const headerData = await getInfoHeader(windowName, windowData, id);
 
-    //3. Datos de detalles
-    const detailsData = []
-    if (windowData.Details.length > 0) {
-        for (var detail of windowData.Details) {
-            const detailData = await getInfoDetails(windowName, detail.value, headerData[0][windowData.Header.primaryKey], windowData);
-            const detailModel = {
-                [detail.value]: detailData
-            };
-            detailsData[detail.value] = detailData
+        //3. Datos de detalles
+        const detailsData = []
+        if (windowData.Details.length > 0) {
+            for (var detail of windowData.Details) {
+                const detailData = await getInfoDetails(windowName, detail.value, headerData[0][windowData.Header.primaryKey], windowData);
+                const detailModel = {
+                    [detail.value]: detailData
+                };
+                detailsData[detail.value] = detailData
+            }
         }
-    }
 
-    winFormat.value = windowData;
-    headerStyle.value = buildContainerClasses(winFormat.value.Header.style);
-    headerModel.value = headerData[0] ?? {};
-    detailsModel.value = detailsData;
+        winFormat.value = windowData;
+        headerStyle.value = buildContainerClasses(winFormat.value.Header.style);
+        headerModel.value = headerData[0] ?? {};
+        detailsModel.value = detailsData;
+    }
+    
 
     loaded.value = true;
 }
 
 async function onSave() {
-    // const formData = new FormData();
-    // const customerId = Number(headerModel.value["cus_id"]);
-    // Object.entries(headerModel.value).forEach(([key, value]) => {
-    //     if (value !== null && value !== undefined) {
-    //         formData.append(key, String(value));
-    //     }
-    // });
+    const formData = new FormData();
+    const headerId = Number(headerModel.value["cus_id"]);
+    Object.entries(headerModel.value).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+            formData.append(key, String(value));
+        }
+    });
 
-    // if (windowStore.winState == "creation") {
-    //     const response = await saveNewCustomer(formData);
-    //     if (response.success) {
-    //         const redirect = response.redirect;
-    //         windowStore.setRead();
-    //         await router.push(redirect);
-    //         loadData();
-    //     }
-    // } else {
-    //     console.log("Saving customer with ID:", customerId);
-    //     const response = await saveCustomer(formData, customerId);
-    //     console.log("Response from saveCustomer:", response);
-    //     // 2026-06-26. Santi. Esta comprobación no está devolviendo nada desde el backend. De momento lo pondré como valido
-    //     // Y así compruebo que el estado funciona.
-    //     //if (response.details === 204) {
-    //     windowStore.setRead();
-    //     //}
-    // }
+    if (windowStore.winState == "creation") {
+        const windowName = route.params.windowName
+        const response = await saveNewHeader(String(windowName), 0, formData);
+        if (response.success) {
+            const redirect = response.redirect;
+            windowStore.setRead();
+            await router.push(redirect);
+            loadData();
+        }else{
+            console.log(response)
+        }
+    } else {
+        // console.log("Saving register with ID:", headerId);
+        const windowName = route.params.windowName
+        const response = await saveHeader(String(windowName), 0, headerId, formData);
+        // console.log("Response from saveHeader:", response);
+        // 2026-06-26. Santi. Esta comprobación no está devolviendo nada desde el backend. De momento lo pondré como valido
+        // Y así compruebo que el estado funciona.
+        console.log(response)
+        if (response.status_code === "200") {
+            windowStore.setRead();
+        }
+    }
 
     // stateWin.value = "modify";
-    // alert("Cliente guardado");
+    // alert("Registro guardado");
 }
 
 function onChange(newModel: DynamicModel) {
-    // if (windowStore.winState !== "modify" && windowStore.winState !== "creation") {
-    //     const newId = newModel["cus_id"];
-    //     if (newId) {
-    //         windowStore.setModify();
-    //         // Update the route to reflect the new customer ID
-    //         // window.history.replaceState(null, "", `/customer/${newId}`);
-    //     }
-    // }
-    // headerModel.value = newModel;
+    if (windowStore.winState !== "modify" && windowStore.winState !== "creation") {
+        const idKey = Object.keys(newModel).find(key => key.endsWith("_id"));
+        const newId = idKey ? newModel[idKey] : null;
+        if (newId) {
+            windowStore.setModify();
+        }
+    }
+    headerModel.value = newModel;
 }
 
 async function goToNext() {
     var id: string | number | undefined | string[] | boolean | null = route.params.id;
+    const windowName = route.params.windowName
     if (id === undefined){
         id = headerModel.value[winFormat.value.Header.primaryKey]
     }
-    console.log(id)
-    // const newID = await getNextHeaderID(Number(id));
-    // await router.push(`/customers/${newID}`);
-    // loadData();
+    const newID = await getNextHeaderID(String(windowName), winFormat.value, Number(id));
+    await router.push(`/iqs/${windowName}/${newID}`);
+    loadData();
 }
 
 async function goToPrevious() {
-    // const id = route.params.id;
-    // const newID = await getPreviousCustomer(Number(id));
-    // await router.push(`/customers/${newID}`);
-    // loadData();
+    var id: string | number | undefined | string[] | boolean | null = route.params.id;
+    const windowName = route.params.windowName
+    if (id === undefined){
+        id = headerModel.value[winFormat.value.Header.primaryKey]
+    }
+    const newID = await getPrevHeaderID(String(windowName), winFormat.value, Number(id));
+    await router.push(`/iqs/${windowName}/${newID}`);
+    loadData();
 }
 
 async function goToFirst() {
-    // const id = await getFirstCustomer();
-    // await router.push(`/customers/${id}`);
-    // loadData();
+    const windowName = route.params.windowName
+    const newID = await getFirstHeaderID(String(windowName), winFormat.value);
+    await router.push(`/iqs/${windowName}/${newID}`);
+    loadData();
 }
 
 async function goToLast() {
-    // const id = await getLastCustomer();
-    // await router.push(`/customers/${id}`);
-    // loadData();
+    const windowName = route.params.windowName
+    const newID = await getLastHeaderID(String(windowName), winFormat.value);
+    await router.push(`/iqs/${windowName}/${newID}`);
+    loadData();
 }
 
 async function onCreateNew() {
-    // await router.push(`/customers/new`);
-    // loadData();
+    const windowName = route.params.windowName
+    await router.push(`/iqs/${windowName}/new`);
+    loadData();
 }
 
 async function onDeleteCurrent() {
-    // if (confirm("¿Desea borrar este cliente?") == true) {
-    //     const id = route.params.id;
-    //     await deleteCustomer(Number(id));
-    //     goToPrevious();
-    // }
+    if (confirm("¿Desea borrar este cliente?") == true) {
+        var id: string | number | undefined | string[] | boolean | null = route.params.id;
+        const windowName = route.params.windowName
+        if (id === undefined){
+            id = headerModel.value[winFormat.value.Header.primaryKey]
+        }
+        await deleteRegister(String(windowName), 0, Number(id), winFormat.value);
+        goToPrevious();
+    }
 }
 
 function CancelChanges() {
     const id = route.params.id;
-
+    windowStore.setRead()
     if (id && id !== "new") {
         loadData();
     } else {
