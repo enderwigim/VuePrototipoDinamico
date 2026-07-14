@@ -1,5 +1,5 @@
 <template>
-  <VoltSelect v-bind="selectAttrs">
+  <VoltSelect v-bind="selectAttrs" filter>
     <template v-for="(_, slotName) in $slots" #[slotName]="slotProps">
       <slot :name="slotName" v-bind="slotProps ?? {}" />
     </template>

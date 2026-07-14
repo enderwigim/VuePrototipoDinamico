@@ -1,13 +1,15 @@
 <template>
   <div
-    class="flex items-center justify-end gap-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm"
+    class="flex items-center justify-end gap-2 w-full"
   >
     <!-- MODO LECTURA -->
     <button
       v-if="windowStore.winState === 'read'"
       type="button"
       title="Inicio"
-      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0"
+      id="button-first"
+      :disabled="props.disableFirst"
+      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('goToFirst')"
     >
       «
@@ -17,7 +19,9 @@
       v-if="windowStore.winState === 'read'"
       type="button"
       title="Anterior"
-      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0"
+      id="button-prev"
+      :disabled="props.disablePrev"
+      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('goToPrevious')"
     >
       ‹
@@ -27,7 +31,8 @@
       v-if="windowStore.winState === 'read'"
       type="button"
       title="Siguiente"
-      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0"
+      id="button-next"
+      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('goToNext')"
     >
       ›
@@ -37,7 +42,8 @@
       v-if="windowStore.winState === 'read'"
       type="button"
       title="Último"
-      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0"
+      id="button-last"
+      class="flex items-center justify-center h-10 w-10 rounded-lg border border-slate-300 bg-white text-slate-700 shadow-sm transition-colors duration-200 hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('goToLast')"
     >
       »
@@ -48,7 +54,7 @@
     <button
       v-if="windowStore.winState === 'read'"
       type="button"
-      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-blue-600 bg-blue-600 text-white px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-0"
+      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-blue-600 bg-blue-600 text-white px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('createNew')"
     >
       <span class="text-base leading-none">+</span>
@@ -58,7 +64,7 @@
     <button
       v-if="windowStore.winState === 'read'"
       type="button"
-      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-red-200 bg-white text-red-600 px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 focus:outline-none focus:ring-0"
+      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-red-200 bg-white text-red-600 px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-red-50 hover:border-red-300 hover:text-red-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('deleteCurrent')"
     >
       <span class="text-base leading-none">×</span>
@@ -69,7 +75,7 @@
     <button
       v-if="windowStore.winState !== 'read'"
       type="button"
-      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-blue-600 bg-blue-600 text-white px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-0"
+      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-blue-600 bg-blue-600 text-white px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-blue-700 hover:border-blue-700 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('acceptChanges')"
     >
       <span class="text-base leading-none">✓</span>
@@ -79,7 +85,7 @@
     <button
       v-if="windowStore.winState !== 'read'"
       type="button"
-      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-slate-300 bg-white text-slate-700 px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-0"
+      class="flex items-center justify-center gap-2 h-10 rounded-lg border border-slate-300 bg-white text-slate-700 px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:border-slate-400 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-0 cursor-pointer"
       @click="emit('cancelChanges')"
     >
       <span class="text-base leading-none">×</span>
@@ -102,4 +108,15 @@ const emit = defineEmits([
   "acceptChanges",
   "cancelChanges",
 ]);
+
+const props = defineProps({
+    disableFirst: {
+        type: Boolean,
+        default: false,
+    },
+    disablePrev: {
+        type: Boolean,
+        default: false,
+    },
+});
 </script>

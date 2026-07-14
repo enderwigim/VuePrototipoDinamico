@@ -7,7 +7,7 @@ export async function getInfoWindow(windowName: string) {
     return response.data;
 }
 
-export async function getInfoHeader(windowName: string, windowFormat: any, registerID: number | string | undefined) {
+export async function getInfoHeader(windowName: string, windowFormat: any, registerID: number | string | string[] | undefined) {
     if (registerID === undefined){
         const response = await api.post(`${API_PATH}${windowName}/0`, windowFormat);
         return response.data;
@@ -49,7 +49,7 @@ export async function getFirstHeaderID(windowName: string, windowFormat: any) {
 
 export async function getLastHeaderID(windowName: string, windowFormat: any) {
     const response = await api.post(`${API_PATH}${windowName}/0?last_value=true`, windowFormat);
-    console.log(response.data)
+    // console.log(response.data)
     return response.data;
 }
 export async function getInfoDetails(windowName: string, detailID: number, registerID: number | undefined, windowFormat: any) {
@@ -83,7 +83,7 @@ export async function saveNewHeader(windowName: string, detailID: number, formDa
     }
 }
 
-export async function saveHeader(windowName: string, detailID: number, registerID: number | string | undefined, formData: FormData){
+export async function saveHeader(windowName: string, detailID: number, registerID: number | string | boolean | null| undefined, formData: FormData){
     const response = await api.put(`${API_PATH}${windowName}/${detailID}/${registerID}`, formData);
     return response.data;
 }

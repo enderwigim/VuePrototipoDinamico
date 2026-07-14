@@ -5,15 +5,13 @@
     <section
       class="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/70 dark:shadow-black/40 px-8 py-8"
     >
-      <div class="mb-8 text-center">
-        <div
-          class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600 text-white text-xl font-bold shadow-sm"
-        >
-          IQS
-        </div>
-
+      <div class="mb-8 text-center flex flex-col items-center">
+        <img
+            src="/Logo_Integra.jpg"
+            alt="Logo Integra"
+            class="h-20 w-auto object-contain"
+        />
         <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Iniciar sesión</h1>
-
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Accede al panel de gestión</p>
       </div>
 
@@ -57,7 +55,7 @@
         <button
           type="submit"
           :disabled="loading"
-          class="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-blue-600 bg-blue-600 text-white px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-blue-700 hover:border-blue-700 disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500 dark:disabled:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 focus:outline-none focus:ring-0"
+          class="flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-blue-400 bg-blue-400 text-white px-4 text-sm font-medium shadow-sm transition-colors duration-200 hover:bg-blue-500 hover:border-blue-500 cursor-pointer disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-300 disabled:text-slate-500 dark:disabled:border-slate-700 dark:disabled:bg-slate-800 dark:disabled:text-slate-500 focus:outline-none focus:ring-0"
         >
           <span v-if="loading">Accediendo...</span>
           <span v-else>Entrar</span>
