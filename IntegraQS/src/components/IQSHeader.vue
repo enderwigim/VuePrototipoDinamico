@@ -42,6 +42,7 @@
         :placeholder="field.placeholder"
         :readonly="field.state === 'readOnly'"
         :options="field.options"
+        :parent-field="field.field"
         option-label="title"
         option-value="value"
       ></IQSSelectBase>
