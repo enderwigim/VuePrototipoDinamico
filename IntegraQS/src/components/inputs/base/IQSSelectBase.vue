@@ -7,12 +7,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed, useAttrs, ref, watch, onMounted } from "vue";
+import { computed, useAttrs } from "vue";
 import VoltSelect from "@/volt/Select.vue";
 
 defineOptions({
   inheritAttrs: false,
 });
+
+const attrs = useAttrs();
 
 const inputSelectPt = {
   "pt:root:class": `
@@ -151,84 +153,6 @@ const inputSelectPt = {
   `,
 };
 
-export interface SelectOption {
-  title: string;
-  value: string | number;
-  disabled?: boolean;
-}
-
-const props = withDefaults(
-  defineProps<{
-    options?: SelectOption[];
-    parentField?: string | null;
-  }>(),
-  {
-    options: () => [],
-  },
-);
-
-const attrs = useAttrs();
-const internalOptions = ref<SelectOption[]>(props.options);
-const loading = ref(false);
-
-async function loadOptionsByField(parentField: string): Promise<SelectOption[]> {
-  // Si no hay campo vinculado, no se pueden cargar opciones.
-  if (!parentField) {
-    return [];
-  }
-  return [
-    {
-      title: "Física",
-      value: "1",
-      disabled: false,
-    },
-    {
-      title: "Jurídica",
-      value: "2",
-      disabled: false,
-    },
-  ];
-}
-
-async function loadSelectOptions() {
-  // Si no es vinculado, cargamos las opciones que nos pasa su padre.
-  if (!props.parentField) {
-    internalOptions.value = props.options;
-    return;
-  }
-
-  loading.value = true;
-
-  // Cargamos las opciones según el campo padre.
-  try {
-    // Llamamos a la función dínamica para cargar las opciones.
-    const loadedOptions = await loadOptionsByField(props.parentField ?? "");
-    internalOptions.value = loadedOptions ?? [];
-  } finally {
-    loading.value = false;
-  }
-}
-
-watch(
-  () => props.options,
-  function (newOptions) {
-    // Si no es vinculado, cargamos las opciones que nos pasa su padre.
-    if (!props.parentField) {
-      internalOptions.value = newOptions;
-    }
-  },
-);
-
-onMounted(function () {
-  if (props.parentField) {
-    loadSelectOptions();
-  }
-});
-
-defineExpose({
-  reload: loadSelectOptions,
-});
-
 const selectAttrs = computed<Record<string, unknown>>(function () {
   const cleanAttrs: Record<string, unknown> = {
     ...attrs,
@@ -240,10 +164,6 @@ const selectAttrs = computed<Record<string, unknown>>(function () {
 
   return {
     ...cleanAttrs,
-
-    options: internalOptions.value,
-    loading: loading.value,
-
     ...inputSelectPt,
   };
 });
