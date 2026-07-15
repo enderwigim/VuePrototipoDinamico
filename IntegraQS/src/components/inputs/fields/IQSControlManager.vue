@@ -36,6 +36,7 @@
 import { computed } from "vue";
 import { getControlRegistration } from "@/components/inputs/fields/controlRegistry";
 import type { Field, FieldValue } from "@/types/types";
+import IQSInputField from "@/components/inputs/fields/IQSInputField.vue";
 
 const props = defineProps<{
   control: Field;
@@ -111,12 +112,8 @@ const displayValue = computed<FieldValue>(() => {
   if (!isSelect.value || !props.control.options) {
     return props.modelValue;
   }
-
-  const selectedOption = props.control.options.find((option) => {
-    return String(option.value) === String(props.modelValue);
-  });
-
-  return selectedOption?.value ?? props.modelValue;
+  // console.log(props)
+  return String(props.modelValue);
 });
 
 function handleUpdate(value: FieldValue): void {

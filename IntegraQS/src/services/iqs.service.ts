@@ -83,7 +83,17 @@ export async function saveNewHeader(windowName: string, detailID: number, formDa
     }
 }
 
-export async function saveHeader(windowName: string, detailID: number, registerID: number | string | boolean | null| undefined, formData: FormData){
+export async function saveHeader(windowName: string, detailID: number, registerID: number | string | boolean | null | undefined, formData: FormData){
     const response = await api.put(`${API_PATH}${windowName}/${detailID}/${registerID}`, formData);
+    return response.data;
+}
+
+export async function getSelectedOption(field_name: string, value: number | string | boolean | null | undefined){
+    const response = await api.get(`${API_PATH}search/${field_name}?chosen_value=${value}`)
+    return response.data;
+}
+
+export async function getOptions(field_name: string){
+    const response = await api.get(`${API_PATH}search/${field_name}`)
     return response.data;
 }
