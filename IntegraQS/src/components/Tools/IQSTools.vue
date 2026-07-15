@@ -112,11 +112,12 @@ const emit = defineEmits([
 const props = defineProps({
     disableFirst: {
         type: Boolean,
-        default: false,
+        default: false
     },
     disablePrev: {
         type: Boolean,
-        default: false,
+        default: false
     },
+    modal: Boolean
 });
 </script>
