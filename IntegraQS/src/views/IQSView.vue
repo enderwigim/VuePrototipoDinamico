@@ -293,13 +293,14 @@ async function onSave() {
         const response = await saveNewHeader(String(windowName), 0, formData);
         if (response.success) {
             const redirect = response.redirect;
-           // windowStore.setRead();
-            await router.push(redirect);
-            loadData();
-            if(props.modal){
+            windowStore.setRead();
+            if(!props.modal){
+                await router.push(redirect);
+            }else{
                 close();
-                showSuccessCreation();
             }
+            loadData();
+            showSuccessCreation();
         } else {
             console.log(response);
         }
@@ -311,10 +312,10 @@ async function onSave() {
         // Y así compruebo que el estado funciona.
         // console.log(response)
         if (response.status_code === "200") {
-            //windowStore.setRead();
+            windowStore.setRead();
+            showSuccessModify();
             if(props.modal){
                 close();
-                showSuccessModify();
             }
         }
     }

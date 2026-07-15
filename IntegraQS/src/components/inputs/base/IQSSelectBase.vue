@@ -9,6 +9,7 @@
 <script setup lang="ts">
 import { computed, useAttrs, ref, watch, onMounted } from "vue";
 import VoltSelect from "@/volt/Select.vue";
+import { getOptions } from "@/services/iqs.service";
 
 defineOptions({
   inheritAttrs: false,
@@ -179,7 +180,12 @@ async function loadOptionsByField(selectType: string): Promise<SelectOption[]> {
   }
 
   // Aqui hacemos la petición
-  return props.options;
+  let result = await getOptions(String(props.parentField))
+  const formatedResult = result.map((item: any) => ({
+      ...item,
+      disabled: false
+  }));
+  return formatedResult;
 }
 
 async function loadSelectOptions() {
@@ -229,7 +235,6 @@ const selectAttrs = computed<Record<string, unknown>>(function () {
   if (cleanAttrs.class === null) {
     delete cleanAttrs.class;
   }
-
   return {
     ...cleanAttrs,
 
