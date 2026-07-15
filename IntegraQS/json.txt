@@ -1,0 +1,1406 @@
+{
+  "Footer": [],
+  "Header": {
+    "type": 3,
+    "style": {
+      "gap": {
+        "md": 6,
+        "default": 4
+      },
+      "margin": {
+        "top": {
+          "default": 5
+        }
+      },
+      "display": "grid",
+      "padding": {
+        "x": {
+          "lg": 6,
+          "default": 4
+        },
+        "y": {
+          "lg": 5,
+          "default": 3
+        }
+      },
+      "grid_cols": {
+        "lg": 6,
+        "md": 3,
+        "sm": 2,
+        "default": 1
+      }
+    },
+    "table": "CUSTOMER_CUS",
+    "fields": [
+      {
+        "name": "EDT_cus_id",
+        "size": "1",
+        "type": "number",
+        "field": "cus_id",
+        "state": "active",
+        "title": "Cliente",
+        "inputClass": "flex w-full h-10 px-3 py-2 text-sm bg-gray-200 border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_corporateName",
+        "size": "5",
+        "type": "string",
+        "field": "cus_corporatename",
+        "state": "active",
+        "title": "Razón social",
+        "inputClass": "flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_commercialName",
+        "size": "5",
+        "type": "string",
+        "field": "cus_commercialname",
+        "state": "active",
+        "title": "Nombre comercial",
+        "inputClass": "flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_Campo1",
+        "size": "1",
+        "type": "tag",
+        "field": null,
+        "state": "active",
+        "title": "",
+        "inputClass": ""
+      },
+      {
+        "name": "EDT_cus_taxID",
+        "size": "2",
+        "type": "string",
+        "field": "cus_taxid",
+        "state": "active",
+        "title": "NIF/CIF",
+        "inputClass": "flex w-full h-10 px-3 py-2 text-sm bg-white border rounded-md border-neutral-300 ring-offset-background placeholder:text-neutral-500 focus:border-neutral-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_cus_entity",
+        "size": "1",
+        "type": "select",
+        "field": "cus_entity",
+        "state": "readOnly",
+        "title": "Entidad",
+        "options": [
+          {
+            "title": "Fisica",
+            "value": "1",
+            "disabled": false
+          },
+          {
+            "title": "Juridica",
+            "value": "2",
+            "disabled": false
+          }
+        ],
+        "inputClass": "relative min-h-[38px] flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default border-neutral-200/70 focus:outline-none  text-sm bg-gray-200",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_cus_country",
+        "size": "2",
+        "type": "select",
+        "field": "cus_country",
+        "state": "active",
+        "title": "País",
+        "options": [
+          {
+            "title": "Afganistán",
+            "value": "AF",
+            "disabled": false
+          },
+          {
+            "title": "Albania",
+            "value": "AL",
+            "disabled": false
+          },
+          {
+            "title": "Alemania",
+            "value": "DE",
+            "disabled": false
+          },
+          {
+            "title": "Andorra",
+            "value": "AD",
+            "disabled": false
+          },
+          {
+            "title": "Angola",
+            "value": "AO",
+            "disabled": false
+          },
+          {
+            "title": "Antigua y Barbuda",
+            "value": "AG",
+            "disabled": false
+          },
+          {
+            "title": "Arabia Saudita",
+            "value": "SA",
+            "disabled": false
+          },
+          {
+            "title": "Argelia",
+            "value": "DZ",
+            "disabled": false
+          },
+          {
+            "title": "Argentina",
+            "value": "AR",
+            "disabled": false
+          },
+          {
+            "title": "Armenia",
+            "value": "AM",
+            "disabled": false
+          },
+          {
+            "title": "Australia",
+            "value": "AU",
+            "disabled": false
+          },
+          {
+            "title": "Austria",
+            "value": "AT",
+            "disabled": false
+          },
+          {
+            "title": "Azerbaiyán",
+            "value": "AZ",
+            "disabled": false
+          },
+          {
+            "title": "Bahamas",
+            "value": "BS",
+            "disabled": false
+          },
+          {
+            "title": "Bangladés",
+            "value": "BD",
+            "disabled": false
+          },
+          {
+            "title": "Barbados",
+            "value": "BB",
+            "disabled": false
+          },
+          {
+            "title": "Baréin",
+            "value": "BH",
+            "disabled": false
+          },
+          {
+            "title": "Bélgica",
+            "value": "BE",
+            "disabled": false
+          },
+          {
+            "title": "Belice",
+            "value": "BZ",
+            "disabled": false
+          },
+          {
+            "title": "Benín",
+            "value": "BJ",
+            "disabled": false
+          },
+          {
+            "title": "Bielorrusia",
+            "value": "BY",
+            "disabled": false
+          },
+          {
+            "title": "Birmania",
+            "value": "MM",
+            "disabled": false
+          },
+          {
+            "title": "Bolivia",
+            "value": "BO",
+            "disabled": false
+          },
+          {
+            "title": "Bosnia y Herzegovina",
+            "value": "BA",
+            "disabled": false
+          },
+          {
+            "title": "Botsuana",
+            "value": "BW",
+            "disabled": false
+          },
+          {
+            "title": "Brasil",
+            "value": "BR",
+            "disabled": false
+          },
+          {
+            "title": "Brunéi",
+            "value": "BN",
+            "disabled": false
+          },
+          {
+            "title": "Bulgaria",
+            "value": "BG",
+            "disabled": false
+          },
+          {
+            "title": "Burkina Faso",
+            "value": "BF",
+            "disabled": false
+          },
+          {
+            "title": "Burundi",
+            "value": "BI",
+            "disabled": false
+          },
+          {
+            "title": "Bután",
+            "value": "BT",
+            "disabled": false
+          },
+          {
+            "title": "Cabo Verde",
+            "value": "CV",
+            "disabled": false
+          },
+          {
+            "title": "Camboya",
+            "value": "KH",
+            "disabled": false
+          },
+          {
+            "title": "Camerún",
+            "value": "CM",
+            "disabled": false
+          },
+          {
+            "title": "Canadá",
+            "value": "CA",
+            "disabled": false
+          },
+          {
+            "title": "Catar",
+            "value": "QA",
+            "disabled": false
+          },
+          {
+            "title": "Chad",
+            "value": "TD",
+            "disabled": false
+          },
+          {
+            "title": "Chile",
+            "value": "CL",
+            "disabled": false
+          },
+          {
+            "title": "China",
+            "value": "CN",
+            "disabled": false
+          },
+          {
+            "title": "Chipre",
+            "value": "CY",
+            "disabled": false
+          },
+          {
+            "title": "Colombia",
+            "value": "CO",
+            "disabled": false
+          },
+          {
+            "title": "Comoras",
+            "value": "KM",
+            "disabled": false
+          },
+          {
+            "title": "Corea del Norte",
+            "value": "KP",
+            "disabled": false
+          },
+          {
+            "title": "Corea del Sur",
+            "value": "KR",
+            "disabled": false
+          },
+          {
+            "title": "Costa de Marfil",
+            "value": "CI",
+            "disabled": false
+          },
+          {
+            "title": "Costa Rica",
+            "value": "CR",
+            "disabled": false
+          },
+          {
+            "title": "Croacia",
+            "value": "HR",
+            "disabled": false
+          },
+          {
+            "title": "Cuba",
+            "value": "CU",
+            "disabled": false
+          },
+          {
+            "title": "Dinamarca",
+            "value": "DK",
+            "disabled": false
+          },
+          {
+            "title": "Dominica",
+            "value": "DM",
+            "disabled": false
+          },
+          {
+            "title": "Ecuador",
+            "value": "EC",
+            "disabled": false
+          },
+          {
+            "title": "Egipto",
+            "value": "EG",
+            "disabled": false
+          },
+          {
+            "title": "El Salvador",
+            "value": "SV",
+            "disabled": false
+          },
+          {
+            "title": "Emiratos Árabes Unidos",
+            "value": "AE",
+            "disabled": false
+          },
+          {
+            "title": "Eritrea",
+            "value": "ER",
+            "disabled": false
+          },
+          {
+            "title": "Eslovaquia",
+            "value": "SK",
+            "disabled": false
+          },
+          {
+            "title": "Eslovenia",
+            "value": "SI",
+            "disabled": false
+          },
+          {
+            "title": "España",
+            "value": "ES",
+            "disabled": false
+          },
+          {
+            "title": "Estados Unidos",
+            "value": "US",
+            "disabled": false
+          },
+          {
+            "title": "Estonia",
+            "value": "EE",
+            "disabled": false
+          },
+          {
+            "title": "Esuatini",
+            "value": "SZ",
+            "disabled": false
+          },
+          {
+            "title": "Etiopía",
+            "value": "ET",
+            "disabled": false
+          },
+          {
+            "title": "Filipinas",
+            "value": "PH",
+            "disabled": false
+          },
+          {
+            "title": "Finlandia",
+            "value": "FI",
+            "disabled": false
+          },
+          {
+            "title": "Fiyi",
+            "value": "FJ",
+            "disabled": false
+          },
+          {
+            "title": "Francia",
+            "value": "FR",
+            "disabled": false
+          },
+          {
+            "title": "Gabón",
+            "value": "GA",
+            "disabled": false
+          },
+          {
+            "title": "Gambia",
+            "value": "GM",
+            "disabled": false
+          },
+          {
+            "title": "Georgia",
+            "value": "GE",
+            "disabled": false
+          },
+          {
+            "title": "Ghana",
+            "value": "GH",
+            "disabled": false
+          },
+          {
+            "title": "Granada",
+            "value": "GD",
+            "disabled": false
+          },
+          {
+            "title": "Grecia",
+            "value": "GR",
+            "disabled": false
+          },
+          {
+            "title": "Guatemala",
+            "value": "GT",
+            "disabled": false
+          },
+          {
+            "title": "Guinea",
+            "value": "GN",
+            "disabled": false
+          },
+          {
+            "title": "Guinea-Bisáu",
+            "value": "GW",
+            "disabled": false
+          },
+          {
+            "title": "Guinea Ecuatorial",
+            "value": "GQ",
+            "disabled": false
+          },
+          {
+            "title": "Guyana",
+            "value": "GY",
+            "disabled": false
+          },
+          {
+            "title": "Haití",
+            "value": "HT",
+            "disabled": false
+          },
+          {
+            "title": "Honduras",
+            "value": "HN",
+            "disabled": false
+          },
+          {
+            "title": "Hungría",
+            "value": "HU",
+            "disabled": false
+          },
+          {
+            "title": "India",
+            "value": "IN",
+            "disabled": false
+          },
+          {
+            "title": "Indonesia",
+            "value": "ID",
+            "disabled": false
+          },
+          {
+            "title": "Irak",
+            "value": "IQ",
+            "disabled": false
+          },
+          {
+            "title": "Irán",
+            "value": "IR",
+            "disabled": false
+          },
+          {
+            "title": "Irlanda",
+            "value": "IE",
+            "disabled": false
+          },
+          {
+            "title": "Islandia",
+            "value": "IS",
+            "disabled": false
+          },
+          {
+            "title": "Islas Marshall",
+            "value": "MH",
+            "disabled": false
+          },
+          {
+            "title": "Islas Salomón",
+            "value": "SB",
+            "disabled": false
+          },
+          {
+            "title": "Israel",
+            "value": "IL",
+            "disabled": false
+          },
+          {
+            "title": "Italia",
+            "value": "IT",
+            "disabled": false
+          },
+          {
+            "title": "Jamaica",
+            "value": "JM",
+            "disabled": false
+          },
+          {
+            "title": "Japón",
+            "value": "JP",
+            "disabled": false
+          },
+          {
+            "title": "Jordania",
+            "value": "JO",
+            "disabled": false
+          },
+          {
+            "title": "Kazajistán",
+            "value": "KZ",
+            "disabled": false
+          },
+          {
+            "title": "Kenia",
+            "value": "KE",
+            "disabled": false
+          },
+          {
+            "title": "Kirguistán",
+            "value": "KG",
+            "disabled": false
+          },
+          {
+            "title": "Kiribati",
+            "value": "KI",
+            "disabled": false
+          },
+          {
+            "title": "Kuwait",
+            "value": "KW",
+            "disabled": false
+          },
+          {
+            "title": "Laos",
+            "value": "LA",
+            "disabled": false
+          },
+          {
+            "title": "Lesoto",
+            "value": "LS",
+            "disabled": false
+          },
+          {
+            "title": "Letonia",
+            "value": "LV",
+            "disabled": false
+          },
+          {
+            "title": "Líbano",
+            "value": "LB",
+            "disabled": false
+          },
+          {
+            "title": "Liberia",
+            "value": "LR",
+            "disabled": false
+          },
+          {
+            "title": "Libia",
+            "value": "LY",
+            "disabled": false
+          },
+          {
+            "title": "Liechtenstein",
+            "value": "LI",
+            "disabled": false
+          },
+          {
+            "title": "Lituania",
+            "value": "LT",
+            "disabled": false
+          },
+          {
+            "title": "Luxemburgo",
+            "value": "LU",
+            "disabled": false
+          },
+          {
+            "title": "Madagascar",
+            "value": "MG",
+            "disabled": false
+          },
+          {
+            "title": "Malasia",
+            "value": "MY",
+            "disabled": false
+          },
+          {
+            "title": "Malaui",
+            "value": "MW",
+            "disabled": false
+          },
+          {
+            "title": "Maldivas",
+            "value": "MV",
+            "disabled": false
+          },
+          {
+            "title": "Malí",
+            "value": "ML",
+            "disabled": false
+          },
+          {
+            "title": "Malta",
+            "value": "MT",
+            "disabled": false
+          },
+          {
+            "title": "Marruecos",
+            "value": "MA",
+            "disabled": false
+          },
+          {
+            "title": "Mauricio",
+            "value": "MU",
+            "disabled": false
+          },
+          {
+            "title": "Mauritania",
+            "value": "MR",
+            "disabled": false
+          },
+          {
+            "title": "México",
+            "value": "MX",
+            "disabled": false
+          },
+          {
+            "title": "Micronesia",
+            "value": "FM",
+            "disabled": false
+          },
+          {
+            "title": "Moldavia",
+            "value": "MD",
+            "disabled": false
+          },
+          {
+            "title": "Mónaco",
+            "value": "MC",
+            "disabled": false
+          },
+          {
+            "title": "Mongolia",
+            "value": "MN",
+            "disabled": false
+          },
+          {
+            "title": "Montenegro",
+            "value": "ME",
+            "disabled": false
+          },
+          {
+            "title": "Mozambique",
+            "value": "MZ",
+            "disabled": false
+          },
+          {
+            "title": "Namibia",
+            "value": "NA",
+            "disabled": false
+          },
+          {
+            "title": "Nauru",
+            "value": "NR",
+            "disabled": false
+          },
+          {
+            "title": "Nepal",
+            "value": "NP",
+            "disabled": false
+          },
+          {
+            "title": "Nicaragua",
+            "value": "NI",
+            "disabled": false
+          },
+          {
+            "title": "Níger",
+            "value": "NE",
+            "disabled": false
+          },
+          {
+            "title": "Nigeria",
+            "value": "NG",
+            "disabled": false
+          },
+          {
+            "title": "Noruega",
+            "value": "NO",
+            "disabled": false
+          },
+          {
+            "title": "Nueva Zelanda",
+            "value": "NZ",
+            "disabled": false
+          },
+          {
+            "title": "Omán",
+            "value": "OM",
+            "disabled": false
+          },
+          {
+            "title": "Países Bajos",
+            "value": "NL",
+            "disabled": false
+          },
+          {
+            "title": "Pakistán",
+            "value": "PK",
+            "disabled": false
+          },
+          {
+            "title": "Palaos",
+            "value": "PW",
+            "disabled": false
+          },
+          {
+            "title": "Panamá",
+            "value": "PA",
+            "disabled": false
+          },
+          {
+            "title": "Papúa Nueva Guinea",
+            "value": "PG",
+            "disabled": false
+          },
+          {
+            "title": "Paraguay",
+            "value": "PY",
+            "disabled": false
+          },
+          {
+            "title": "Perú",
+            "value": "PE",
+            "disabled": false
+          },
+          {
+            "title": "Polonia",
+            "value": "PL",
+            "disabled": false
+          },
+          {
+            "title": "Portugal",
+            "value": "PT",
+            "disabled": false
+          },
+          {
+            "title": "Reino Unido",
+            "value": "GB",
+            "disabled": false
+          },
+          {
+            "title": "República Centroafricana",
+            "value": "CF",
+            "disabled": false
+          },
+          {
+            "title": "República Checa",
+            "value": "CZ",
+            "disabled": false
+          },
+          {
+            "title": "República Democrática del Congo",
+            "value": "CD",
+            "disabled": false
+          },
+          {
+            "title": "República del Congo",
+            "value": "CG",
+            "disabled": false
+          },
+          {
+            "title": "República Dominicana",
+            "value": "DO",
+            "disabled": false
+          },
+          {
+            "title": "Ruanda",
+            "value": "RW",
+            "disabled": false
+          },
+          {
+            "title": "Rumanía",
+            "value": "RO",
+            "disabled": false
+          },
+          {
+            "title": "Rusia",
+            "value": "RU",
+            "disabled": false
+          },
+          {
+            "title": "Samoa",
+            "value": "WS",
+            "disabled": false
+          },
+          {
+            "title": "San Cristóbal y Nieves",
+            "value": "KN",
+            "disabled": false
+          },
+          {
+            "title": "San Marino",
+            "value": "SM",
+            "disabled": false
+          },
+          {
+            "title": "San Vicente y las Granadinas",
+            "value": "VC",
+            "disabled": false
+          },
+          {
+            "title": "Santa Lucía",
+            "value": "LC",
+            "disabled": false
+          },
+          {
+            "title": "Santo Tomé y Príncipe",
+            "value": "ST",
+            "disabled": false
+          },
+          {
+            "title": "Senegal",
+            "value": "SN",
+            "disabled": false
+          },
+          {
+            "title": "Serbia",
+            "value": "RS",
+            "disabled": false
+          },
+          {
+            "title": "Seychelles",
+            "value": "SC",
+            "disabled": false
+          },
+          {
+            "title": "Sierra Leona",
+            "value": "SL",
+            "disabled": false
+          },
+          {
+            "title": "Singapur",
+            "value": "SG",
+            "disabled": false
+          },
+          {
+            "title": "Siria",
+            "value": "SY",
+            "disabled": false
+          },
+          {
+            "title": "Somalia",
+            "value": "SO",
+            "disabled": false
+          },
+          {
+            "title": "Sri Lanka",
+            "value": "LK",
+            "disabled": false
+          },
+          {
+            "title": "Sudáfrica",
+            "value": "ZA",
+            "disabled": false
+          },
+          {
+            "title": "Sudán",
+            "value": "SD",
+            "disabled": false
+          },
+          {
+            "title": "Sudán del Sur",
+            "value": "SS",
+            "disabled": false
+          },
+          {
+            "title": "Suecia",
+            "value": "SE",
+            "disabled": false
+          },
+          {
+            "title": "Suiza",
+            "value": "CH",
+            "disabled": false
+          },
+          {
+            "title": "Surinam",
+            "value": "SR",
+            "disabled": false
+          },
+          {
+            "title": "Tailandia",
+            "value": "TH",
+            "disabled": false
+          },
+          {
+            "title": "Tanzania",
+            "value": "TZ",
+            "disabled": false
+          },
+          {
+            "title": "Tayikistán",
+            "value": "TJ",
+            "disabled": false
+          },
+          {
+            "title": "Timor Oriental",
+            "value": "TL",
+            "disabled": false
+          },
+          {
+            "title": "Togo",
+            "value": "TG",
+            "disabled": false
+          },
+          {
+            "title": "Tonga",
+            "value": "TO",
+            "disabled": false
+          },
+          {
+            "title": "Trinidad y Tobago",
+            "value": "TT",
+            "disabled": false
+          },
+          {
+            "title": "Túnez",
+            "value": "TN",
+            "disabled": false
+          },
+          {
+            "title": "Turkmenistán",
+            "value": "TM",
+            "disabled": false
+          },
+          {
+            "title": "Turquía",
+            "value": "TR",
+            "disabled": false
+          },
+          {
+            "title": "Tuvalu",
+            "value": "TV",
+            "disabled": false
+          },
+          {
+            "title": "Ucrania",
+            "value": "UA",
+            "disabled": false
+          },
+          {
+            "title": "Uganda",
+            "value": "UG",
+            "disabled": false
+          },
+          {
+            "title": "Uruguay",
+            "value": "UY",
+            "disabled": false
+          },
+          {
+            "title": "Uzbekistán",
+            "value": "UZ",
+            "disabled": false
+          },
+          {
+            "title": "Vanuatu",
+            "value": "VU",
+            "disabled": false
+          },
+          {
+            "title": "Vaticano",
+            "value": "VA",
+            "disabled": false
+          },
+          {
+            "title": "Venezuela",
+            "value": "VE",
+            "disabled": false
+          },
+          {
+            "title": "Vietnam",
+            "value": "VN",
+            "disabled": false
+          },
+          {
+            "title": "Yemen",
+            "value": "YE",
+            "disabled": false
+          },
+          {
+            "title": "Yibuti",
+            "value": "DJ",
+            "disabled": false
+          },
+          {
+            "title": "Zambia",
+            "value": "ZM",
+            "disabled": false
+          },
+          {
+            "title": "Zimbabue",
+            "value": "ZW",
+            "disabled": false
+          }
+        ],
+        "inputClass": "relative min-h-[38px] flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default border-neutral-200/70 focus:outline-none  text-sm",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_cus_active",
+        "size": "1",
+        "type": "checkbox",
+        "field": "cus_active",
+        "state": "active",
+        "title": "Activo",
+        "inputClass": "w-4 h-4 bg-gray-100 border-gray-300 rounded text-neutral-900 focus:ring-neutral-900",
+        "labelClass": "mr-3 text-sm font-medium text-gray-900"
+      },
+      {
+        "name": "EDT_tas_cus_fk",
+        "size": "2",
+        "type": "select linked",
+        "field": "tas_cus_fk",
+        "state": "active",
+        "title": "Sistema de impuestos",
+        "options": [
+          {
+            "title": "Régimen general",
+            "value": "1",
+            "disabled": false
+          },
+          {
+            "title": "Reducido",
+            "value": "2",
+            "disabled": false
+          },
+          {
+            "title": "Recargo de equivalencia",
+            "value": "3",
+            "disabled": false
+          },
+          {
+            "title": "Inmovilizado",
+            "value": "4",
+            "disabled": false
+          },
+          {
+            "title": "Intracomunitario",
+            "value": "5",
+            "disabled": false
+          },
+          {
+            "title": "Extracomunitario",
+            "value": "6",
+            "disabled": false
+          },
+          {
+            "title": "Exento",
+            "value": "7",
+            "disabled": false
+          },
+          {
+            "title": "Arrendamientos",
+            "value": "8",
+            "disabled": false
+          },
+          {
+            "title": "IGIC general",
+            "value": "9",
+            "disabled": false
+          },
+          {
+            "title": "IGIC reducido",
+            "value": "10",
+            "disabled": false
+          },
+          {
+            "title": "IGIC exento",
+            "value": "11",
+            "disabled": false
+          },
+          {
+            "title": "Agricultura, ganadería y pesca",
+            "value": "12",
+            "disabled": false
+          },
+          {
+            "title": "Simplificado",
+            "value": "13",
+            "disabled": false
+          },
+          {
+            "title": "Operaciones bienes inmuebles no habituales",
+            "value": "14",
+            "disabled": false
+          },
+          {
+            "title": "Adquisición intracomunitaria bienes inversión",
+            "value": "15",
+            "disabled": false
+          },
+          {
+            "title": "Adquisición intracomunitaria del sujeto pasivo",
+            "value": "16",
+            "disabled": false
+          },
+          {
+            "title": "Operaciones sujetas y no exentas",
+            "value": "17",
+            "disabled": false
+          },
+          {
+            "title": "Entrega bienes objeto instalación",
+            "value": "18",
+            "disabled": false
+          },
+          {
+            "title": "Entrega interior bienes subsiguientes",
+            "value": "19",
+            "disabled": false
+          },
+          {
+            "title": "Entregas servicios",
+            "value": "20",
+            "disabled": false
+          },
+          {
+            "title": "Inversión del sujeto pasivo",
+            "value": "21",
+            "disabled": false
+          },
+          {
+            "title": "Particular no sujeto",
+            "value": "22",
+            "disabled": false
+          },
+          {
+            "title": "Extracomunitario bienes de inversión",
+            "value": "23",
+            "disabled": false
+          },
+          {
+            "title": "Intracomunitaria servicios",
+            "value": "24",
+            "disabled": false
+          },
+          {
+            "title": "Inmovilizado inversión en sujeto pasivo",
+            "value": "25",
+            "disabled": false
+          },
+          {
+            "title": "Extracomunitario de servicios",
+            "value": "26",
+            "disabled": false
+          },
+          {
+            "title": "Régimen de la Unión (UOSS)",
+            "value": "27",
+            "disabled": false
+          },
+          {
+            "title": "IPSI general",
+            "value": "28",
+            "disabled": false
+          },
+          {
+            "title": "IPSI reducido",
+            "value": "29",
+            "disabled": false
+          },
+          {
+            "title": "IPSI exento",
+            "value": "30",
+            "disabled": false
+          }
+        ],
+        "inputClass": "relative min-h-[38px] flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default border-neutral-200/70 focus:outline-none text-sm",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_cur_cus_fk",
+        "size": "1",
+        "type": "select linked",
+        "field": "cur_cus_fk",
+        "state": "active",
+        "title": "Divisa",
+        "options": [
+          {
+            "title": "Euro",
+            "value": "1",
+            "disabled": false
+          }
+        ],
+        "inputClass": "relative min-h-[38px] flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default border-neutral-200/70 focus:outline-none text-sm",
+        "labelClass": "text-sm font-medium text-gray-700"
+      },
+      {
+        "name": "EDT_pam_cus_fk",
+        "size": "1",
+        "type": "select linked",
+        "field": "pam_cus_fk",
+        "state": "active",
+        "title": "Forma de pago",
+        "options": [
+          {
+            "title": "EFECTIVO",
+            "value": "1",
+            "disabled": false
+          },
+          {
+            "title": "TARJETA",
+            "value": "2",
+            "disabled": false
+          },
+          {
+            "title": "TRANSFERENCIA",
+            "value": "3",
+            "disabled": false
+          },
+          {
+            "title": "CHEQUE",
+            "value": "4",
+            "disabled": false
+          }
+        ],
+        "inputClass": "relative min-h-[38px] flex items-center justify-between w-full py-2 pl-3 pr-10 text-left border rounded-md shadow-sm cursor-default border-neutral-200/70 focus:outline-none text-sm",
+        "labelClass": "text-sm font-medium text-gray-700"
+      }
+    ],
+    "primaryKey": "cus_id"
+  },
+  "Details": [
+    {
+      "type": 1,
+      "table": "ADDRESS_ADD",
+      "title": "Direcciones",
+      "value": 1,
+      "tableFk": "cus_add_fk",
+      "controls": [
+        {
+          "name": "TABLE0",
+          "size": "6",
+          "type": "table",
+          "field": null,
+          "state": "active",
+          "title": "Direcciones",
+          "columns": [
+            {
+              "key": "add_address",
+              "type": "string",
+              "field": "add_address",
+              "state": "active",
+              "header": "Dirección",
+              "visible": true,
+              "bodyClass": "w-[140px] text-center",
+              "columnProps": {
+                "sortable": true
+              },
+              "headerClass": "w-[140px] text-center",
+              "columnConfig": {
+                "editable": true
+              }
+            },
+            {
+              "key": "add_city",
+              "type": "string",
+              "field": "add_city",
+              "state": "active",
+              "header": "Ciudad",
+              "visible": true,
+              "bodyClass": "w-[260px]",
+              "columnProps": {
+                "sortable": true
+              },
+              "headerClass": "w-[260px]",
+              "columnConfig": {
+                "editable": true
+              }
+            },
+            {
+              "key": "add_country",
+              "type": "string",
+              "field": "add_country",
+              "state": "active",
+              "header": "País",
+              "visible": true,
+              "bodyClass": "w-[180px] text-center",
+              "columnProps": {
+                "sortable": true
+              },
+              "headerClass": "w-[180px] text-center",
+              "columnConfig": {
+                "editable": true
+              }
+            }
+          ],
+          "dataSource": {
+            "name": "customers",
+            "type": "local"
+          },
+          "tableProps": {
+            "dataKey": "id",
+            "editMode": "cell",
+            "sortMode": "multiple",
+            "tableStyle": "min-width: 900px; width: 100%; table-layout: fixed",
+            "removableSort": true
+          }
+        }
+      ],
+      "maintenanceWindow": "address"
+    },
+    {
+      "title": "Datos generales",
+      "value": 2,
+      "controls": {}
+    },
+    {
+      "title": "Sucursales",
+      "value": 3,
+      "controls": {}
+    }
+  ],
+  "Lateral": [
+    {
+      "img": "./img/btn/image_1.png",
+      "name": "BTN_Parameters",
+      "title": "Configuracion",
+      "on_click": "alert('Parametros!!')"
+    }
+  ]
+}

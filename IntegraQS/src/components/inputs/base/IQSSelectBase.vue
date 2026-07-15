@@ -161,6 +161,7 @@ const props = withDefaults(
   defineProps<{
     options?: SelectOption[];
     parentField?: string | null;
+    selectType?: string | null
   }>(),
   {
     options: () => [],
@@ -171,28 +172,19 @@ const attrs = useAttrs();
 const internalOptions = ref<SelectOption[]>(props.options);
 const loading = ref(false);
 
-async function loadOptionsByField(parentField: string): Promise<SelectOption[]> {
+async function loadOptionsByField(selectType: string): Promise<SelectOption[]> {
   // Si no hay campo vinculado, no se pueden cargar opciones.
-  if (!parentField) {
+  if (!selectType || selectType == "select") {
     return [];
   }
-  return [
-    {
-      title: "Física",
-      value: "1",
-      disabled: false,
-    },
-    {
-      title: "Jurídica",
-      value: "2",
-      disabled: false,
-    },
-  ];
+
+  // Aqui hacemos la petición
+  return props.options;
 }
 
 async function loadSelectOptions() {
   // Si no es vinculado, cargamos las opciones que nos pasa su padre.
-  if (!props.parentField) {
+  if (props.selectType == "select") {
     internalOptions.value = props.options;
     return;
   }
@@ -202,7 +194,7 @@ async function loadSelectOptions() {
   // Cargamos las opciones según el campo padre.
   try {
     // Llamamos a la función dínamica para cargar las opciones.
-    const loadedOptions = await loadOptionsByField(props.parentField ?? "");
+    const loadedOptions = await loadOptionsByField(props.selectType ?? "");
     internalOptions.value = loadedOptions ?? [];
   } finally {
     loading.value = false;
@@ -220,7 +212,7 @@ watch(
 );
 
 onMounted(function () {
-  if (props.parentField) {
+  if (props.selectType) {
     loadSelectOptions();
   }
 });

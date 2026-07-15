@@ -1,66 +1,52 @@
 <template>
-  <div v-if="loaded" class="flex flex-col justify-between">
-    <header
-      class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex justify-between"
-    >
-      <a href="http://localhost:5173/login">
-        <img src="/Logo_Integra.jpg" alt="Logo Integra" class="h-20 w-auto object-contain" />
-      </a>
-      <IQSToolsRead
-        v-if="winFormat.Header.type != 5 && props.modal == false"
-        :disable-first="disableFirst"
-        :disable-prev="disablePrev"
-        @goToNext="goToNext"
-        @goToPrevious="goToPrevious"
-        @cancelChanges="CancelChanges"
-        @accept-changes="onSave"
-        @goToFirst="goToFirst"
-        @goToLast="goToLast"
-        @createNew="onCreateNew"
-        @deleteCurrent="onDeleteCurrent"
-      />
-      <Button
-        v-if="props.modal"
-        icon="pi pi-pencil"
-        @click="close"
-        severity="secondary"
-        rounded
-        class="h-8 w-8 items-center justify-center rounded-lg bg-red-400 text-white shadow transition hover:bg-red-500! active:scale-95 cursor-pointer"
-        >X</Button
-      >
-    </header>
-    <main class="flex flex-col h-full">
-      <section id="header-section">
-        <IQSHeader
-          :header-style="headerStyle"
-          :header-fields="winFormat.Header.fields"
-          :model="headerModel"
-          @update:model="onChange"
-        ></IQSHeader>
-      </section>
-      <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
-        <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
-          <IQSMain
-            :model="headerModel"
-            :main-tabs="winFormat.Details"
-            :detail-values="detailsModel"
-            @open-detail="openDetailWindow"
-          >
-          </IQSMain>
-        </div>
-        <aside v-if="winFormat.Lateral.length > 0" class="p-6 bg-white border rounded-xl">
-          Aquí irán el lateral
-        </aside>
-      </section>
-    </main>
-  </div>
-  <Teleport to="body">
-    <div v-if="loadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div class="bg-white rounded-xl w-[90vw] h-[90vh] overflow-auto">
-        <IQSView modal :windowName="modalWindow" :id="modalId" @close="loadModal = false" />
-      </div>
+    <div v-if="loaded" class="flex flex-col justify-between px-4 py-1 overflow-hidden scrollbar-none">
+        <header class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex justify-between">
+            <a href="http://localhost:5173/login">
+                <img src="/Logo_Integra.jpg" alt="Logo Integra" class="h-20 w-auto object-contain" />
+            </a>
+            <div class="flex gap-5 items-center">
+                <IQSToolsRead v-if="winFormat.Header.type != 5" :disable-first="disableFirst" :disable-prev="disablePrev"
+                    @goToNext="goToNext" @goToPrevious="goToPrevious" @cancelChanges="CancelChanges"
+                    @accept-changes="onSave" @goToFirst="goToFirst" @goToLast="goToLast" @createNew="onCreateNew"
+                    @deleteCurrent="onDeleteCurrent" />
+                <Button v-if="props.modal" icon="pi pi-pencil" @click="close" severity="secondary" rounded
+                        class="h-8 w-8 items-center justify-center rounded-lg bg-red-400 text-white shadow transition hover:bg-red-500! active:scale-95 cursor-pointer">X</Button>
+            </div>
+            
+        </header>
+        <main class="flex flex-col h-full">
+            <section id="header-section">
+                <IQSHeader :header-style="headerStyle" :header-fields="winFormat.Header.fields" :model="headerModel"
+                    @update:model="onChange"></IQSHeader>
+            </section>
+            <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
+                <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
+                    <IQSMain 
+                        :model="headerModel" 
+                        :main-tabs="winFormat.Details" 
+                        :detail-values="detailsModel"
+                        @open-detail="openDetailWindow">
+                    </IQSMain>
+                </div>
+                <aside v-if="winFormat.Lateral.length > 0" class="p-6 bg-white border rounded-xl">Aquí irán el lateral
+                </aside>
+            </section>
+        </main>
     </div>
-  </Teleport>
+    <Teleport to="body">
+        <Dialog v-model:visible="loadModal" modal
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 border border-transparent overflow-hidden scrollbar-none"
+        >
+            <div class="bg-white rounded-xl w-[90vw] h-[90vh]">
+                <IQSView
+                    modal
+                    :windowName="modalWindow"
+                    :id="modalId"
+                    @close="closeModal"/>
+            </div>
+        </Dialog>
+    </Teleport>
+
 </template>
 
 <script setup lang="ts">
@@ -72,6 +58,7 @@ import IQSMain from "@/components/IQSMain.vue";
 import IQSToolsRead from "@/components/Tools/IQSTools.vue";
 import { useWindowStore } from "@/stores/windowStore";
 import Button from "@/volt/Button.vue";
+import Dialog from "@/volt/Dialog.vue";
 
 import {
   getInfoWindow,
@@ -202,6 +189,11 @@ async function loadData() {
   loaded.value = true;
 }
 
+async function closeModal() {
+    loadModal.value = false;
+    await loadData();
+}
+
 async function onSave() {
   const formData = new FormData();
   const headerId = Object.entries(headerModel.value).find(([key]) => key.endsWith("_id"))?.[1];
@@ -247,77 +239,87 @@ function onChange(newModel: DynamicModel) {
 }
 
 async function goToNext() {
-  let id: string | number | undefined | string[] | boolean | null = currentId.value;
-  const windowName = currentWindow.value;
-  if (id === undefined) {
-    id = headerModel.value[winFormat.value.Header.primaryKey];
-  }
-  const newID = await getNextHeaderID(String(windowName), winFormat.value, Number(id));
-  if (newID == null) {
-    // Poner botón con id: button-prev y boton con id: button-first como solo lectura
-    disableNext.value = true;
-    disableLast.value = true;
-  } else {
-    disableFirst.value = false;
-    disablePrev.value = false;
-    await router.push(`/iqs/${windowName}/${newID}`);
-    loadData();
-  }
+    var id: string | number | undefined | string[] | boolean | null = currentId.value;
+    const windowName = currentWindow.value;
+    if (id === undefined) {
+        id = headerModel.value[winFormat.value.Header.primaryKey]
+    }
+    const newID = await getNextHeaderID(String(windowName), winFormat.value, Number(id));
+    if (newID == null) {
+        // Poner botón con id: button-prev y boton con id: button-first como solo lectura
+        disableNext.value = true;
+        disableLast.value = true;
+    } else {
+        disableFirst.value = false;
+        disablePrev.value = false;
+        if (!props.modal){
+            await router.push(`/iqs/${windowName}/${newID}`);
+        }
+        loadData();
+    }
 }
 
 async function goToPrevious() {
-  let id: string | number | undefined | string[] | boolean | null = currentId.value;
-  const windowName = currentWindow.value;
-  if (id === undefined) {
-    id = headerModel.value[winFormat.value.Header.primaryKey];
-  }
-  const newID = await getPrevHeaderID(String(windowName), winFormat.value, Number(id));
-  if (newID == null) {
-    // Poner botón con id: button-prev y boton con id: button-first como solo lectura
-    disableFirst.value = true;
-    disablePrev.value = true;
-  } else {
-    disableNext.value = false;
-    disableLast.value = false;
-    await router.push(`/iqs/${windowName}/${newID}`);
-    loadData();
-  }
+    var id: string | number | undefined | string[] | boolean | null = currentId.value;
+    const windowName = currentWindow.value;
+    if (id === undefined) {
+        id = headerModel.value[winFormat.value.Header.primaryKey]
+    }
+    const newID = await getPrevHeaderID(String(windowName), winFormat.value, Number(id));
+    if (newID == null) {
+        // Poner botón con id: button-prev y boton con id: button-first como solo lectura
+        disableFirst.value = true;
+        disablePrev.value = true;
+    } else {
+        disableNext.value = false;
+        disableLast.value = false;
+        if (!props.modal){
+            await router.push(`/iqs/${windowName}/${newID}`);
+        }
+        loadData();
+    }
 }
 
 async function goToFirst() {
-  const windowName = currentWindow.value;
-  const newID = await getFirstHeaderID(String(windowName), winFormat.value);
-  if (newID == null) {
-    // Poner botón con id: button-prev y boton con id: button-first como solo lectura
-    disableFirst.value = true;
-    disablePrev.value = true;
-  } else {
-    disableNext.value = false;
-    disableLast.value = false;
-    await router.push(`/iqs/${windowName}/${newID}`);
-    loadData();
-  }
+    const windowName = currentWindow.value;
+    const newID = await getFirstHeaderID(String(windowName), winFormat.value);
+    if (newID == null) {
+        // Poner botón con id: button-prev y boton con id: button-first como solo lectura
+        disableFirst.value = true;
+        disablePrev.value = true;
+    } else {
+        disableNext.value = false;
+        disableLast.value = false;
+        if (!props.modal){
+            await router.push(`/iqs/${windowName}/${newID}`);
+        }
+        loadData();
+    }
 }
 
 async function goToLast() {
-  const windowName = currentWindow.value;
-  const newID = await getLastHeaderID(String(windowName), winFormat.value);
-  if (newID == null) {
-    // Poner botón con id: button-prev y boton con id: button-first como solo lectura
-    disableNext.value = true;
-    disableLast.value = true;
-  } else {
-    disableFirst.value = false;
-    disablePrev.value = false;
-    await router.push(`/iqs/${windowName}/${newID}`);
-    loadData();
-  }
+    const windowName = currentWindow.value;
+    const newID = await getLastHeaderID(String(windowName), winFormat.value);
+    if (newID == null) {
+        // Poner botón con id: button-prev y boton con id: button-first como solo lectura
+        disableNext.value = true;
+        disableLast.value = true;
+    } else {
+        disableFirst.value = false;
+        disablePrev.value = false;
+        if (!props.modal){
+            await router.push(`/iqs/${windowName}/${newID}`);
+        }
+        loadData();
+    }
 }
 
 async function onCreateNew() {
-  const windowName = currentWindow.value;
-  await router.push(`/iqs/${windowName}/new`);
-  loadData();
+    const windowName = currentWindow.value;
+    if (!props.modal){
+        await router.push(`/iqs/${windowName}/new`);        
+    }
+    loadData();
 }
 
 async function onDeleteCurrent() {
