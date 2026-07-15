@@ -91,6 +91,7 @@ const componentProps = computed<Record<string, unknown>>(() => {
         ...commonProps,
         options: props.control.options ?? [],
         parentField: props.control.field,
+        selectType: props.control.type,
         optionLabel: "title",
         optionValue: "value",
       };
