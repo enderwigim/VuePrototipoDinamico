@@ -72,3 +72,23 @@ export interface ControlRegistration {
   component: Component;
   useFieldWrapper: boolean;
 }
+
+// Gestión de estado de ventanas.
+export type WinState = "read" | "modify" | "creation";
+export type WindowType = "base" | "modal";
+
+export interface WindowInstance {
+  instanceId: string; // Identificado único de la instancia de ventana
+  windowName: string; // Nombre de la ventana
+  state: WinState; // Estado independiente de la ventana
+  type: WindowType; // Tipo de ventana (base o modal)
+  parentId: string | null; // Identificado de la instancia del padre
+}
+
+// Opciones para registrar una nueva instancia.
+export interface RegisterWindowOptions {
+  windowName: string;
+  type?: WindowType;
+  parentId?: string | null; // Padre de la ventana
+  initialState?: WinState;
+}

@@ -1,57 +1,85 @@
 <template>
-    <Toast />
-    <div v-if="loaded" class="flex flex-col justify-between px-4 py-1 overflow-hidden scrollbar-none">
-        <header class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex justify-between">
-            <a href="http://localhost:5173/login">
-                <img src="/Logo_Integra.jpg" alt="Logo Integra" class="h-20 w-auto object-contain" />
-            </a>
-            <div class="flex gap-5 items-center w-full">
-                <IQSToolsRead v-if="winFormat.Header.type != 5" :disable-first="disableFirst"
-                    :disable-prev="disablePrev" :modal="props.modal" @goToNext="goToNext" @goToPrevious="goToPrevious"
-                    @cancelChanges="CancelChanges" @accept-changes="onSave" @goToFirst="goToFirst" @goToLast="goToLast"
-                    @createNew="onCreateNew" @deleteCurrent="onDeleteCurrent" />
-                <Button v-if="props.modal" icon="pi pi-pencil" @click="close" severity="secondary" rounded
-                    class="h-8 w-12 items-center justify-center rounded-lg bg-red-400 text-white shadow transition hover:bg-red-500! active:scale-95 cursor-pointer">X</Button>
-            </div>
-
-        </header>
-        <main class="flex flex-col h-full">
-            <section id="header-section">
-                <IQSHeader :header-style="headerStyle" :header-fields="winFormat.Header.fields" :model="headerModel"
-                    @update:model="onChange"></IQSHeader>
-            </section>
-            <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
-                <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
-                    <IQSMain :model="headerModel" :main-tabs="winFormat.Details" :detail-values="detailsModel"
-                        @open-detail="openDetailWindow">
-                    </IQSMain>
-                </div>
-                <aside v-if="winFormat.Lateral.length > 0" class="p-6 bg-white border rounded-xl">Aquí irán el lateral
-                </aside>
-            </section>
-        </main>
-    </div>
-    <Teleport to="body">
-        <Dialog v-model:visible="loadModal" modal
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 border border-transparent overflow-hidden scrollbar-none">
-            <div class="bg-white rounded-xl w-[90vw] h-[90vh]">
-                <IQSView modal :windowName="modalWindow" :id="modalId" @close="closeModal" />
-            </div>
-        </Dialog>
-    </Teleport>
-
+  <Toast />
+  <div v-if="loaded" class="flex flex-col justify-between px-4 py-1 overflow-hidden scrollbar-none">
+    <header
+      class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex justify-between"
+    >
+      <a href="http://localhost:5173/login">
+        <img src="/Logo_Integra.jpg" alt="Logo Integra" class="h-20 w-auto object-contain" />
+      </a>
+      <div class="flex gap-5 items-center w-full">
+        <IQSToolsRead
+          v-if="winFormat.Header.type != 5"
+          :disable-first="disableFirst"
+          :disable-prev="disablePrev"
+          :modal="props.modal"
+          @goToNext="goToNext"
+          @goToPrevious="goToPrevious"
+          @cancelChanges="CancelChanges"
+          @accept-changes="onSave"
+          @goToFirst="goToFirst"
+          @goToLast="goToLast"
+          @createNew="onCreateNew"
+          @deleteCurrent="onDeleteCurrent"
+        />
+        <Button
+          v-if="props.modal"
+          icon="pi pi-pencil"
+          @click="close"
+          severity="secondary"
+          rounded
+          class="h-8 w-12 items-center justify-center rounded-lg bg-red-400 text-white shadow transition hover:bg-red-500! active:scale-95 cursor-pointer"
+          >X</Button
+        >
+      </div>
+    </header>
+    <main class="flex flex-col h-full">
+      <section id="header-section">
+        <IQSHeader
+          :header-style="headerStyle"
+          :header-fields="winFormat.Header.fields"
+          :model="headerModel"
+          @update:model="onChange"
+        ></IQSHeader>
+      </section>
+      <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
+        <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
+          <IQSMain
+            :model="headerModel"
+            :main-tabs="winFormat.Details"
+            :detail-values="detailsModel"
+            @open-detail="openDetailWindow"
+          >
+          </IQSMain>
+        </div>
+        <aside v-if="winFormat.Lateral.length > 0" class="p-6 bg-white border rounded-xl">
+          Aquí irán el lateral
+        </aside>
+      </section>
+    </main>
+  </div>
+  <Teleport to="body">
+    <Dialog
+      v-model:visible="loadModal"
+      modal
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 border border-transparent overflow-hidden scrollbar-none"
+    >
+      <div class="bg-white rounded-xl w-[90vw] h-[90vh]">
+        <IQSView modal :windowName="modalWindow" :id="modalId" @close="closeModal" />
+      </div>
+    </Dialog>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted,onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useWindowStore } from "@/stores/windowStore";
+import { useToast } from "primeVue/useToast";
 
 import IQSHeader from "@/components/IQSHeader.vue";
 import IQSMain from "@/components/IQSMain.vue";
 import IQSToolsRead from "@/components/Tools/IQSTools.vue";
-import { useWindowStore } from "@/stores/windowStore";
-import { useToast } from 'primevue/usetoast';
-import Toast from "@/volt/Toast.vue";
 import Button from "@/volt/Button.vue";
 import Dialog from "@/volt/Dialog.vue";
 
@@ -70,7 +98,7 @@ import {
 } from "@/services/iqs.service";
 import { computed } from "vue";
 import { buildContainerClasses } from "@/utils/containerBuilder";
-import type { DetailTab, DynamicModel } from "@/types/types";
+import type { DetailTab, DynamicModel, WinState } from "@/types/types";
 // type DynamicModel = Record<string, string | number | boolean | null>;
 
 const route = useRoute();
@@ -102,39 +130,96 @@ const headerModel = ref<DynamicModel>({});
 const detailsModel = ref<DynamicModel[]>([]);
 
 const headerStyle = ref<string>("");
-// type StateWin = "creation" | "modify" | "read";
-// const stateWin = ref<StateWin>("read");
+
+// Creamos el windowStore para maneja el estado de la ventana y sus acciones.
 const windowStore = useWindowStore();
+// Creamos el identificado para la instancia. De esta manera el IQSView puede manejar su propio estado.
+const instanceId = ref<string | null>(null);
+
+// Variable computada para obtener la instancia de la ventana.
+const currentWindowInstance = computed(() => {
+  if (!instanceId.value) {
+    return null;
+  }
+
+  return windowStore.windows[instanceId.value] ?? null;
+});
+
+const winState = computed<WinState>(() => {
+  return currentWindowInstance.value?.state ?? "read";
+});
+
 const toast = useToast();
 const showSuccessModify = () => {
     toast.add({ severity: 'success', summary: 'Modificado', detail: 'Registro modificado', life: 3000 });
-}; 
+};
 
 const showSuccessCreation = () => {
     toast.add({ severity: 'success', summary: 'Creado', detail: 'Registro creado', life: 3000 });
-}; 
+};
 
 const props = withDefaults(
     defineProps<{
         modal?: boolean;
         windowName?: string;
         id?: number | string;
+        parentInstanceId?: string | null;
     }>(),
     {
         modal: false,
         windowName: "",
         id: undefined,
+        parentInstanceId: null,
     },
 );
 defineOptions({
     name: "IQSView",
 });
-const currentWindow = ref(props.modal ? String(props.windowName) : String(route.params.windowName));
-const currentId = ref(props.modal ? props.id : route.params.id);
+// const currentWindow = ref(props.modal ? String(props.windowName) : String(route.params.windowName));
+// const currentId = ref(props.modal ? props.id : route.params.id);
+const currentWindow = computed(() => {
+  return props.modal
+    ? String(props.windowName)
+    : String(route.params.windowName);
+});
+
+const currentId = computed(() => {
+  const id = props.modal
+    ? props.id
+    : route.params.id;
+
+  return Array.isArray(id) ? id[0] : id;
+});
+
+
 
 const emit = defineEmits<{
     (e: "close"): void;
 }>();
+
+async function initializeWindow(): Promise<void> {
+  const windowName = currentWindow.value;
+
+  if (!windowName) {
+    throw new Error(
+      "No se ha podido determinar el nombre de la ventana.",
+    );
+  }
+
+  instanceId.value = windowStore.registerWindow({
+    windowName,
+    type: props.modal ? "modal" : "base",
+    parentId: props.parentInstanceId,
+    initialState:
+      currentId.value === "new"
+        ? "creation"
+        : "read",
+  });
+  // Cargamos la ventana aquí. Luego de inicializar la ventana con su estado.
+  await loadWindow();
+}
+
+
 
 async function loadWindow() {
     const windowData = await getInfoWindow(currentWindow.value);
@@ -143,7 +228,6 @@ async function loadWindow() {
 
     await loadData();
 }
-
 async function loadData() {
     const windowName = currentWindow.value;
     const id = currentId.value;
@@ -157,7 +241,7 @@ async function loadData() {
         headerStyle.value = buildContainerClasses(winFormat.value.Header.style);
         headerModel.value = headerData[0] ?? {};
         detailsModel.value = detailsData;
-        windowStore.setCreation();
+        //windowStore.setCreation();
     } else {
         // 2. Datos de cabecera
         const headerData = await getInfoHeader(windowName, winFormat.value, id);
@@ -209,7 +293,7 @@ async function onSave() {
         const response = await saveNewHeader(String(windowName), 0, formData);
         if (response.success) {
             const redirect = response.redirect;
-            windowStore.setRead();
+           // windowStore.setRead();
             await router.push(redirect);
             loadData();
             if(props.modal){
@@ -227,10 +311,10 @@ async function onSave() {
         // Y así compruebo que el estado funciona.
         // console.log(response)
         if (response.status_code === "200") {
-            windowStore.setRead();
+            //windowStore.setRead();
             if(props.modal){
-                close();         
-                showSuccessModify();  
+                close();
+                showSuccessModify();
             }
         }
     }
@@ -241,14 +325,14 @@ function onChange(newModel: DynamicModel) {
         const idKey = Object.keys(newModel).find((key) => key.endsWith("_id"));
         const newId = idKey ? newModel[idKey] : null;
         if (newId) {
-            windowStore.setModify();
+           // windowStore.setModify();
         }
     }
     headerModel.value = newModel;
 }
 
 async function goToNext() {
-    var id: string | number | undefined | string[] | boolean | null = currentId.value;
+    let id: string | number | undefined | string[] | boolean | null = currentId.value;
     const windowName = currentWindow.value;
     if (id === undefined) {
         id = headerModel.value[winFormat.value.Header.primaryKey]
@@ -267,10 +351,12 @@ async function goToNext() {
         currentId.value = newID
         loadData();
     }
+    loadData();
+  }
 }
 
 async function goToPrevious() {
-    var id: string | number | undefined | string[] | boolean | null = currentId.value;
+    let id: string | number | undefined | string[] | boolean | null = currentId.value;
     const windowName = currentWindow.value;
     if (id === undefined) {
         id = headerModel.value[winFormat.value.Header.primaryKey]
@@ -289,6 +375,8 @@ async function goToPrevious() {
         currentId.value = newID
         loadData();
     }
+    loadData();
+  }
 }
 
 async function goToFirst() {
@@ -307,6 +395,8 @@ async function goToFirst() {
         currentId.value = newID
         loadData();
     }
+    loadData();
+  }
 }
 
 async function goToLast() {
@@ -325,6 +415,8 @@ async function goToLast() {
         currentId.value = newID
         loadData();
     }
+    loadData();
+  }
 }
 
 async function onCreateNew() {
@@ -366,7 +458,7 @@ function openDetailWindow(window: string, id: number | string) {
 
 function CancelChanges() {
     const id = currentId.value;
-    windowStore.setRead();
+    //windowStore.setRead();
     if (id && id !== "new") {
         loadData();
     } else {
@@ -374,5 +466,13 @@ function CancelChanges() {
     }
 }
 
-onMounted(loadWindow);
+onMounted(initializeWindow);
+// Al desmontar la vista, eliminamos la instancia de la ventana.
+onBeforeUnmount(() => {
+  if (!instanceId.value) {
+    return;
+  }
+
+  windowStore.unregisterWindow(instanceId.value);
+});
 </script>
