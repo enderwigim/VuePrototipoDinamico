@@ -1,3 +1,5 @@
+import type { Component } from "vue";
+
 export type DynamicModel = Record<string, string | number | boolean | null>;
 
 export type FieldValue = string | number | boolean | null;
@@ -64,3 +66,9 @@ export interface WinFormat {
 }
 
 export type FieldState = "active" | "readOnly" | "disabled" | "hidden" | string;
+
+// Gestión de controles
+export interface ControlRegistration {
+  component: Component;
+  useFieldWrapper: boolean;
+}
