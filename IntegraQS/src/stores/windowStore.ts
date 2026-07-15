@@ -57,6 +57,10 @@ export const useWindowStore = defineStore("window", function () {
     windowInstance.state = state;
   }
 
+  function getWindowInstance(instanceId: string): WindowInstance | null {
+    return windows.value[instanceId] || null;
+  }
+
   function unregisterWindow(instanceId: string): void {
     const windowInstance = windows.value[instanceId];
 
@@ -90,5 +94,6 @@ export const useWindowStore = defineStore("window", function () {
     unregisterWindow,
     setActiveWindow,
     setWindowState,
+    getWindowInstance,
   };
 });
