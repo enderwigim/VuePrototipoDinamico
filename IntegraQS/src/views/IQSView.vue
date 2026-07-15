@@ -210,12 +210,13 @@ async function onSave() {
         if (response.success) {
             const redirect = response.redirect;
             windowStore.setRead();
-            await router.push(redirect);
-            loadData();
-            if(props.modal){
+            if(!props.modal){
+                await router.push(redirect);
+            }else{
                 close();
-                showSuccessCreation();
             }
+            loadData();
+            showSuccessCreation();
         } else {
             console.log(response);
         }
@@ -228,9 +229,9 @@ async function onSave() {
         // console.log(response)
         if (response.status_code === "200") {
             windowStore.setRead();
+            showSuccessModify();  
             if(props.modal){
                 close();         
-                showSuccessModify();  
             }
         }
     }
