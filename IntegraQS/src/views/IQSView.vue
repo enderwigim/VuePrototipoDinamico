@@ -207,9 +207,6 @@ async function initializeWindow(): Promise<void> {
   if (!windowName) {
     throw new Error("No se ha podido determinar el nombre de la ventana.");
   }
-  console.log("2. Nombre:", windowName);
-  console.log("3. ID del registro:", currentId.value);
-  console.log("4. Padre:", props.parentInstanceId);
 
   instanceId.value = windowStore.registerWindow({
     windowName,

@@ -39,6 +39,7 @@
         <input
           class="lookup-field__search-input"
           type="text"
+          v-model="searchTerm"
           placeholder="Buscar por código o descripción..."
         />
       </div>
@@ -52,7 +53,7 @@
       <!-- Opciones -->
       <div class="lookup-field__options" @scroll="handleScroll">
         <button
-          v-for="option in props.options"
+          v-for="option in options"
           :key="getOptionKey(option)"
           @click="selectOption(option)"
           class="lookup-field__option"
@@ -88,45 +89,38 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref } from "vue";
+import { watch, ref, onMounted, onBeforeUnmount } from "vue";
 import type { DynamicModel } from "@/types/types";
-
+import { getOptions } from "@/services/iqs.service";
 // type Option = {
 //   id: string;
 //   description: string;
 // };
+// Variables y props:
+const isLoadingMore = ref(false); // Controlar si estoy cargando más.
+const options = ref<DynamicModel[]>([]); // Lista de opciones cargadas.
+const offset = ref(0); // Controlar el offset para la paginación.
+const limit = ref(50); // Controlar límite de la búsqueda.
+const searchTerm = ref(""); // Controlar el término de búsqueda.
+const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
 
+let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
+
+// El componente recibirá. El modelo y puede recibir o no un optionValue. Por defecto es id. Esto lo necesitamos para que
+// el componente pueda trabajar con DynamicModel igual que otros inputs. De está manera podemos llamar a todos desde un mismo manager a futuro.
 const props = withDefaults(
   defineProps<{
     modelValue: DynamicModel | null;
-    options: DynamicModel[];
     optionValue?: string;
-    optionLabel?: string;
   }>(),
   {
     optionValue: "id",
-    optionLabel: "description",
   },
 );
 const emit = defineEmits<{
   "update:modelValue": [value: DynamicModel | null];
   change: [value: DynamicModel | null];
 }>();
-
-function selectOption(option: DynamicModel): void {
-  emit("update:modelValue", option);
-  emit("change", option);
-  validateSelected();
-}
-function validateSelected() {
-  props.options.forEach((option) => {
-    if (props.modelValue && option.id === props.modelValue.id) {
-      option.selected = true;
-    } else {
-      option.selected = false;
-    }
-  });
-}
 
 // Como trabajamos con Dynamic model. Typescript no me permite poner una key que ellos entienden que pueda no existir.
 // Esto no ocurrirá nunca, pero el editar da problemas. Por tanto debemos controlarlo con una función que nos devuelva la key.
@@ -142,25 +136,130 @@ function getOptionKey(option: DynamicModel): string | number {
   );
 }
 
+// ----- GESTIÓN DE CARGADO DE OPCIONES, SCROLLEO Y BÚSQUEDA ------ //
 function handleScroll(event: Event): void {
   const container = event.currentTarget as HTMLElement;
 
   const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
-
-  if (isAtBottom) {
+  // Mandamos a cargar más registros si estamos al final.
+  if (isAtBottom && !isLoadingMore.value) {
     console.log("Has llegado al último registro");
+    loadMoreOptions();
   }
 }
 
+// Carga opciones
+async function loadMoreOptions(): Promise<void> {
+  if (isLoadingMore.value) {
+    return;
+  }
+
+  isLoadingMore.value = true;
+
+  try {
+    const newOptions = await getOptions(
+      "cus_id",
+      limit.value,
+      offset.value,
+      searchTerm.value.trim(),
+    );
+
+    console.log("Nuevas opciones cargadas:", newOptions);
+
+    options.value.push(...newOptions);
+    offset.value += newOptions.length;
+
+    validateSelected();
+  } finally {
+    isLoadingMore.value = false;
+  }
+}
+
+// Reseteo de opciones.
+function resetOptions() {
+  options.value = [];
+  offset.value = 0;
+}
+
+// Búsqueda de valores por la barra de búsqueda.
+async function searchOption(searchValue: string): Promise<void> {
+  resetOptions();
+  isLoadingMore.value = true;
+
+  try {
+    const newOptions = await getOptions("cus_id", 50, offset.value, searchValue);
+
+    console.log("Nuevas opciones cargadas tras búsqueda:", newOptions);
+
+    options.value.push(...newOptions);
+    offset.value += newOptions.length;
+
+    validateSelected();
+  } finally {
+    isLoadingMore.value = false;
+  }
+}
+
+// Loopea por las opciones y cambia el selected para que pueda pintarse correctamente.
+function validateSelected() {
+  options.value.forEach((option) => {
+    console.log("Validando opción:", option, "con modelValue:", props.modelValue);
+    if (props.modelValue && option.id === props.modelValue.id) {
+      option.selected = true;
+    } else {
+      option.selected = false;
+    }
+  });
+}
+
+// Función que emitirá eventos y cambios en el modelo al cambiar la opción seleccionada.
+function selectOption(option: DynamicModel): void {
+  emit("update:modelValue", option);
+  emit("change", option);
+  validateSelected();
+}
+
+// Watchers.
+// Funcionan de la siguiente manera.
+// PRIMER PARAMETRO: Valor que VUE debe vigilar. --> En este caso devolverá el id del modelo. Osea, si cambia el ID activamos esta función.
+// SEGUNDO PARAMETRO: Lo que se ejecutará al cambiar. --> En este caso, se ejecutarán los cambios para que el modelo se seleccione.
 watch(
   () => props.modelValue?.[props.optionValue],
   () => {
     validateSelected();
   },
-  {
-    immediate: true,
-  },
 );
+
+// Watcher del termino de búsqueda. Únicamente se modificará en caso de que el usuario esté utilizando el input de búsqueda.
+// Si se modifica el termino comprobamos con un tiempo de espera.
+watch(searchTerm, (newSearchTerm) => {
+  // Si el contador existe. Lo borro.
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
+
+  // Si se ha cambiado el input, creo un nuevo contador.
+  searchDebounceTimer = setTimeout(() => {
+    searchOption(newSearchTerm.trim());
+  }, searchTime);
+});
+
+// Al montar el componente.
+onMounted(() => {
+  // Cargo las primeras opciones.
+  loadMoreOptions();
+  // Valido que la opción seleccionada se encuentre entre las opciones.
+  validateSelected();
+});
+
+// Antes de desmontar el componente.
+// Esto tiene sentido en caso de tener una ventana modal. Ya que el contador puede estar activo y el componente no existir más.
+// Por tanto, al desmontar debo eliminar el contador, sino podríamos tener errores.
+onBeforeUnmount(() => {
+  if (searchDebounceTimer) {
+    clearTimeout(searchDebounceTimer);
+  }
+});
 </script>
 
 <style scoped>
