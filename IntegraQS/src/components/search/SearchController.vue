@@ -8,10 +8,16 @@
         type="text"
         :value="props.modelValue?.id || ''"
         placeholder="Código"
+        @dblclick="toggleDropdown"
       />
 
       <!-- Botón de búsqueda -->
-      <button class="lookup-field__button" type="button" aria-label="Seleccionar una opción">
+      <button
+        class="lookup-field__button"
+        type="button"
+        aria-label="Seleccionar una opción"
+        @click="toggleDropdown"
+      >
         <svg class="lookup-field__button-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
         </svg>
@@ -29,7 +35,7 @@
     </div>
 
     <!-- Desplegable visible únicamente como maqueta -->
-    <div class="lookup-field__dropdown">
+    <div class="lookup-field__dropdown" v-if="isDropdownOpen">
       <!-- Buscador -->
       <div class="lookup-field__search">
         <svg class="lookup-field__search-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -103,6 +109,7 @@ const offset = ref(0); // Controlar el offset para la paginación.
 const limit = ref(50); // Controlar límite de la búsqueda.
 const searchTerm = ref(""); // Controlar el término de búsqueda.
 const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
+const isDropdownOpen = ref(false); // Control del dropdown (Visual)
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
 
@@ -135,7 +142,10 @@ function getOptionKey(option: DynamicModel): string | number {
     `SearchController: la propiedad "${props.optionValue}" debe ser string o number.`,
   );
 }
-
+// ----- GESTIÓN DEL DROPDOWN ----- //
+function toggleDropdown(): void {
+  isDropdownOpen.value = !isDropdownOpen.value;
+}
 // ----- GESTIÓN DE CARGADO DE OPCIONES, SCROLLEO Y BÚSQUEDA ------ //
 function handleScroll(event: Event): void {
   const container = event.currentTarget as HTMLElement;
@@ -216,6 +226,7 @@ function validateSelected() {
 function selectOption(option: DynamicModel): void {
   emit("update:modelValue", option);
   emit("change", option);
+  toggleDropdown();
   validateSelected();
 }
 
