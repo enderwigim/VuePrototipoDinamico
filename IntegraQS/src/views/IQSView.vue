@@ -50,6 +50,7 @@
             :main-tabs="winFormat.Details"
             :detail-values="detailsModel"
             @open-detail="openDetailWindow"
+            @update:model="onChange"
           >
           </IQSMain>
         </div>

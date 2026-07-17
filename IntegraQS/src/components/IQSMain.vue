@@ -13,8 +13,8 @@
       </Tab>
     </TabList>
     <TabPanels>
-      <TabPanel v-for="tab in props.mainTabs" :key="tab.title" :value="tab.value">
-        <template v-for="control in tab.controls">
+      <TabPanel v-for="tab in props.mainTabs" :key="tab.title" :value="tab.value" :class="buildContainerClasses(tab.style)">
+        <template v-for="(control,index) in tab.controls">
           <DataTable v-if="control.type == 'table'" :value="(props.detailValues[tab.value] ?? []) as unknown[]"
             paginator :rows="6" pt:table="min-w-200"
             :pt="style"  
@@ -32,9 +32,16 @@
             <Column v-for="column in control.columns" :key="column.key" :field="column.field ?? column.key"
               :header="column.header" />
           </DataTable>
-          <IQSInputTextBase v-if="control.type === 'string'" :placeholder="control.placeholder"
+          <!-- <IQSInputTextBase v-if="control.type === 'string'" :placeholder="control.placeholder"
             :readonly="control.state === 'readOnly'" :key="control.name">
-          </IQSInputTextBase>
+          </IQSInputTextBase> -->
+          <IQSControlManager
+            v-else
+            :key="control.name ?? control.field ?? index"
+            :control="control"
+            :model-value="getModelValue(control)"
+            @update:model-value="setModelValue(control, $event)"
+          />
         </template>
       </TabPanel>
     </TabPanels>
@@ -43,16 +50,18 @@
 
 <script setup lang="ts">
 // Importación de tipos
-import type { DetailTab, DynamicModel } from "@/types/types";
+import type { DetailTab, DynamicModel, Field, FieldValue } from "@/types/types";
 import Tabs from "@/components/Tabs/IQSTabsBase.vue";
 import TabList from "@/components/Tabs/IQSTabListBase.vue";
 import Tab from "@/components/Tabs/IQSTabBase.vue";
 import TabPanels from "@/components/Tabs/IQSTabPanelsBase.vue";
 import TabPanel from "@/components/Tabs/IQSTabPanelBase.vue";
+import IQSControlManager from "@/components/inputs/fields/IQSControlManager.vue";
 // Importación de componentes internos de tabs.
 import DataTable from "@/volt/DataTable.vue";
 import Column from 'primevue/column'
 import Button from "@/volt/Button.vue";
+import { buildContainerClasses } from "@/utils/containerBuilder";
 // import DataTable from "@/components/DataTable/DataTablePaginator.vue";
 // import DataColumn from "@/components/DataTable/DataColumn.vue";
 // Importación de componentes internos de inputs.
@@ -70,6 +79,25 @@ const props = withDefaults(
     model: () => ({}),
   },
 );
+
+function getModelValue(field: Field): FieldValue {
+  if (!field.field) {
+    return null;
+  }
+
+  return props.model[field.field] ?? null;
+}
+
+function setModelValue(field: Field, value: FieldValue): void {
+  if (!field.field) {
+    return;
+  }
+
+  emit("update:model", {
+    ...props.model,
+    [field.field]: value,
+  });
+}
 
 const style = {
     root: `relative border border-sky-600 rounded rounded-lg p-flex-scrollable:flex p-flex-scrollable:flex-col p-flex-scrollable:h-full`,
@@ -214,6 +242,7 @@ function deleteDetail(row: DynamicModel) {
 
 const emit = defineEmits<{
   (e: "open-detail", window: string, id: number | string): void;
+  (e: "update:model", value: DynamicModel): void;
 }>();
 
 // const dataExample = [

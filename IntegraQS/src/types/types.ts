@@ -54,6 +54,7 @@ export interface DetailTab {
   controls: Field[];
   value: number;
   maintenanceWindow: string;
+  style: Record<string, unknown>;
 }
 export interface WinFormat {
   Header: {
