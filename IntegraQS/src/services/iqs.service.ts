@@ -136,8 +136,24 @@ export async function getSelectedOption(
   const response = await api.get(`${API_PATH}search/${field_name}?chosen_value=${value}`);
   return response.data;
 }
-
-export async function getOptions(field_name: string) {
-  const response = await api.get(`${API_PATH}search/${field_name}`);
+// Esta función obtiene todas las opciones de un campo, permite paginación y limites.
+// Además, permite la búsqueda de un valor específico.
+export async function getOptions(
+  field_name: string,
+  limit: number | null = null,
+  offset: number | null = null,
+  searched_value: string | null = null,
+) {
+  let urlParams = "";
+  if (limit) {
+    urlParams += `?limit=${limit}`;
+  }
+  if (offset) {
+    urlParams += `${urlParams ? "&" : "?"}offset=${offset}`;
+  }
+  if (searched_value) {
+    urlParams += `${urlParams ? "&" : "?"}searched_value=${searched_value}`;
+  }
+  const response = await api.get(`${API_PATH}search/${field_name}${urlParams}`);
   return response.data;
 }
