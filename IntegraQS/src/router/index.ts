@@ -22,6 +22,11 @@ const router = createRouter({
       name: "iqs",
       component: IQSView,
     },
+    {
+      path: "/test",
+      name: "test",
+      component: () => import("@/views/SearchControlerView.vue"),
+    },
   ],
 });
 
