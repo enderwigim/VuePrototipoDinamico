@@ -6,8 +6,10 @@
       <input
         class="lookup-field__id"
         type="text"
-        :value="props.modelValue?.id || ''"
+        v-model="inputId"
         placeholder="Código"
+        @change="selectOptionById"
+        @keyup.enter="selectOptionById"
         @dblclick="toggleDropdown"
       />
 
@@ -34,7 +36,7 @@
       />
     </div>
 
-    <!-- Desplegable visible únicamente como maqueta -->
+    <!-- Desplegable -->
     <div class="lookup-field__dropdown" v-if="isDropdownOpen">
       <!-- Buscador -->
       <div class="lookup-field__search">
@@ -88,7 +90,7 @@
 
       <!-- Pie del desplegable -->
       <div class="lookup-field__footer">
-        <span>Selecciona una opción</span>
+        <!-- <span>Selecciona una opción</span> -->
       </div>
     </div>
   </div>
@@ -110,6 +112,7 @@ const limit = ref(50); // Controlar límite de la búsqueda.
 const searchTerm = ref(""); // Controlar el término de búsqueda.
 const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
 const isDropdownOpen = ref(false); // Control del dropdown (Visual)
+const inputId = ref(""); // Control de ID
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
 
@@ -174,8 +177,6 @@ async function loadMoreOptions(): Promise<void> {
       searchTerm.value.trim(),
     );
 
-    console.log("Nuevas opciones cargadas:", newOptions);
-
     options.value.push(...newOptions);
     offset.value += newOptions.length;
 
@@ -197,7 +198,7 @@ async function searchOption(searchValue: string): Promise<void> {
   isLoadingMore.value = true;
 
   try {
-    const newOptions = await getOptions("cus_id", 50, offset.value, searchValue);
+    const newOptions = await getOptions("cus_id", limit.value, offset.value, searchValue);
 
     console.log("Nuevas opciones cargadas tras búsqueda:", newOptions);
 
@@ -230,14 +231,63 @@ function selectOption(option: DynamicModel): void {
   validateSelected();
 }
 
+async function selectOptionById(): Promise<void> {
+  const searchedValue = inputId.value.trim();
+  // Si dejamos el inputId vacío. No hacemos nada.
+  if (!searchedValue) {
+    emit("update:modelValue", null);
+    emit("change", null);
+    return;
+  }
+
+  isLoadingMore.value = true;
+
+  try {
+    // FALTA ENDPOINT POR ID.
+    //const results = await getOptions("cus_id", 50, 0, searchedValue);
+    const results = await getOptions("cus_id", 50, 0, "LA NOSTRA PIZZA");
+    console.log(results);
+    const searchedOption = results.find((option: DynamicModel) => {
+      const optionId = option[props.optionValue];
+
+      return optionId !== null && optionId !== undefined && String(optionId) === searchedValue;
+    });
+
+    if (!searchedOption) {
+      console.log(`No se encontró ninguna opción con el ID "${searchedValue}"`);
+
+      emit("update:modelValue", null);
+      emit("change", null);
+      return;
+    } else {
+      searchedOption.active = true;
+    }
+
+    emit("update:modelValue", searchedOption);
+    emit("change", searchedOption);
+
+    validateSelected();
+  } catch (error) {
+    console.error("Error buscando la opción por ID:", error);
+  } finally {
+    isLoadingMore.value = false;
+    isDropdownOpen.value = false;
+  }
+}
+
 // Watchers.
 // Funcionan de la siguiente manera.
 // PRIMER PARAMETRO: Valor que VUE debe vigilar. --> En este caso devolverá el id del modelo. Osea, si cambia el ID activamos esta función.
 // SEGUNDO PARAMETRO: Lo que se ejecutará al cambiar. --> En este caso, se ejecutarán los cambios para que el modelo se seleccione.
 watch(
   () => props.modelValue?.[props.optionValue],
-  () => {
+  (newValue) => {
+    inputId.value = newValue === null || newValue === undefined ? "" : String(newValue);
+
     validateSelected();
+  },
+  {
+    immediate: true,
   },
 );
 
