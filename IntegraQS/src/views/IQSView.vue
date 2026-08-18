@@ -306,10 +306,6 @@ async function onSave() {
   } else {
     const windowName = currentWindow.value;
     const response = await saveHeader(String(windowName), 0, headerId, formData);
-    // console.log("Response from saveHeader:", response);
-    // 2026-06-26. Santi. Esta comprobación no está devolviendo nada desde el backend. De momento lo pondré como valido
-    // Y así compruebo que el estado funciona.
-    // console.log(response)
     if (response.status_code === "200") {
       windowStore.setWindowState(instanceId.value ?? "", "read");
       // showSuccessModify();
@@ -329,7 +325,9 @@ function onChange(newModel: DynamicModel) {
       windowStore.setWindowState(instanceId.value ?? "", "modify");
     }
   }
+  console.log("4 - IQSView recibe:", newModel);
   headerModel.value = newModel;
+  console.log("5 - headerModel actualizado:", headerModel.value);
 }
 
 async function goToNext() {

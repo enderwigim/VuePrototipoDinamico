@@ -133,17 +133,21 @@ export async function getSelectedOption(
   field_name: string,
   value: number | string | boolean | null | undefined,
 ) {
-  const response = await api.get(`${API_PATH}search/${field_name}?chosen_value=${value}`);
-  return response.data;
+  console.log("getSelectedOption called with:", field_name, value);
+  // Esta función obtiene la opción seleccionada de un campo, según el nombre del campo y el valor elegido.
+  const response = await api.get(`${API_PATH}search/${field_name}?searched_value=${value}`);
+  console.log("getSelectedOption response:", response.data);
+  return response.data[0];
 }
-// Esta función obtiene todas las opciones de un campo, permite paginación y limites.
-// Además, permite la búsqueda de un valor específico.
+
 export async function getOptions(
   field_name: string,
   limit: number | null = null,
   offset: number | null = null,
   searched_value: string | null = null,
 ) {
+  // Esta función obtiene todas las opciones de un campo, permite paginación y limites.
+  // Además, permite la búsqueda de un valor específico.
   let urlParams = "";
   if (limit) {
     urlParams += `?limit=${limit}`;

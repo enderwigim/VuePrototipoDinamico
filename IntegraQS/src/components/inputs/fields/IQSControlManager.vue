@@ -7,14 +7,31 @@
     Tipo de control no soportado: {{ control.type }}
   </div>
 
+  <!-- Control vinculado + detalle -->
+  <!-- 2026-08-17  El control pasará a controlarse dentro del InputField.-->
+  <!-- <SearchControler
+    v-else-if="control.type === 'select linked'"
+    :modelValue="searchValue"
+    @update:modelValue="searchValue = $event"
+    :field="String(props.control.field)"
+  /> -->
+
   <!-- Control envuelto en IQSInputField -->
   <IQSInputField
     v-else-if="registration.useFieldWrapper"
     :label="control.title"
     :input-id="control.name"
-    :size="Number(control.size ?? 1)"
+    :size="effectiveSize"
   >
+    <SearchControler
+      v-if="normalizedType === 'select linked'"
+      :model-value="searchValue"
+      :field="String(control.field)"
+      @update:model-value="handleSearchUpdate"
+    />
+
     <component
+      v-else
       :is="registration.component"
       v-bind="componentProps"
       :model-value="displayValue"
@@ -33,10 +50,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch, type Ref } from "vue";
 import { getControlRegistration } from "@/components/inputs/fields/controlRegistry";
-import type { Field, FieldValue } from "@/types/types";
+import type { DynamicModel, Field, FieldValue } from "@/types/types";
 import IQSInputField from "@/components/inputs/fields/IQSInputField.vue";
+import SearchControler from "@/components/search/SearchController.vue";
+import { getSelectedOption } from "@/services/iqs.service";
 
 const props = defineProps<{
   control: Field;
@@ -58,6 +77,105 @@ const registration = computed(() => {
 const isSelect = computed(() => {
   return normalizedType.value === "select" || normalizedType.value === "select linked";
 });
+
+const effectiveSize = computed(() => {
+  const requestedSize = Number(props.control.size ?? 1);
+  const minSize = registration.value?.minSize ?? 1;
+  return Math.max(requestedSize, minSize);
+});
+
+const searchValue: Ref<DynamicModel | null> = ref(null);
+// 2026-08-17. Santi. Este es código nuevo creado por Alejandro. No entiendo exactamente que búscaba hacer con esto.
+// Si se maneja de esta manera, y el manejador siempre está controlando el cambio del searchValue, cuando se actualiza el modelValue, el searchValue se pierde.
+// Comento este código y remplazo por una función que maneja el cambio del searchValue y actualiza el modelValue.
+// Tal vez Alejandro vió alguna límitación que no estoy entendiendo de momento.
+
+// watch(
+//   () => [props.control.field, props.modelValue, props.control.type],
+//   async ([field, value, type]) => {
+//     if (type != "select linked" || value == null) {
+//       searchValue.value = null;
+//       return;
+//     }
+
+//     try {
+//       searchValue.value = await getSelectedOption(String(field), value);
+//       console.log("searchValue.value: ", searchValue.value);
+//     } catch (error) {
+//       console.error("Error obteniendo la opción seleccionada", error);
+//       searchValue.value = null;
+//     }
+//   },
+//   { immediate: true },
+// );
+watch(
+  () => [props.control.field, props.modelValue, normalizedType.value],
+  async ([field, value, type]) => {
+    console.log("watch triggered with:", { field, value, type });
+    // Solo nos interesa para SearchController.
+    if (type !== "select linked") {
+      return;
+    }
+
+    // Si el modelo no tiene valor, limpiamos SearchController.
+    if (value === null || value === undefined) {
+      searchValue.value = null;
+      return;
+    }
+
+    /*
+     * Si SearchController ya contiene este mismo ID,
+     * significa normalmente que el cambio acaba de venir
+     * del propio SearchController.
+     *
+     * No necesitamos volver a consultar backend.
+     */
+    const currentValue = searchValue.value?.id;
+    console.log("currentValue:", currentValue, "value:", value);
+    if (
+      currentValue !== null &&
+      currentValue !== undefined &&
+      String(currentValue) === String(value)
+    ) {
+      return;
+    }
+
+    try {
+      console.log("Obteniendo opción seleccionada para field:", field, "value:", value);
+      searchValue.value = <DynamicModel>{
+        id: String(value),
+        description: "Cargando...",
+      };
+      searchValue.value = await getSelectedOption(String(field), value);
+
+      console.log("SearchValue cargado desde modelValue:", searchValue.value);
+    } catch (error) {
+      console.error("Error obteniendo la opción seleccionada", error);
+
+      searchValue.value = null;
+    }
+  },
+  {
+    immediate: true,
+  },
+);
+
+function handleSearchUpdate(value: DynamicModel | null): void {
+  searchValue.value = value;
+
+  if (value === null) {
+    emit("update:modelValue", null);
+    return;
+  }
+
+  const selectedValue = value.id;
+
+  if (selectedValue === undefined) {
+    return;
+  }
+
+  emit("update:modelValue", selectedValue);
+}
 
 /**
  * Props que recibirá el componente dinámico.
@@ -128,6 +246,10 @@ function handleUpdate(value: FieldValue): void {
    *
    * El valor emitido vuelve a convertirse en número.
    */
+
+  if (isSelect.value && props.control.type == "select linked") {
+  }
+
   if (isSelect.value && typeof props.modelValue === "number" && value !== null) {
     const numericValue = Number(value);
 

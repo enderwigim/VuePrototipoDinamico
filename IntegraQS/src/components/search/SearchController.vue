@@ -1,5 +1,5 @@
 <template>
-  <div class="lookup-field">
+  <div class="lookup-field" ref="searchControllerRef">
     <!-- Campos principales -->
     <div class="lookup-field__controls">
       <!-- Identificador -->
@@ -113,6 +113,7 @@ const searchTerm = ref(""); // Controlar el término de búsqueda.
 const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
 const isDropdownOpen = ref(false); // Control del dropdown (Visual)
 const inputId = ref(""); // Control de ID
+const searchControllerRef = ref<HTMLElement | null>(null); // Referencia al componente para controlar clicks fuera del mismo.
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
 
@@ -122,9 +123,11 @@ const props = withDefaults(
   defineProps<{
     modelValue: DynamicModel | null;
     optionValue?: string;
+    field?: string; // 2026-08-18 Santi. Agrego el field como prop para poder pasarlo al getOptions y que busque por el campo correcto.
   }>(),
   {
     optionValue: "id",
+    field: undefined,
   },
 );
 const emit = defineEmits<{
@@ -149,6 +152,14 @@ function getOptionKey(option: DynamicModel): string | number {
 function toggleDropdown(): void {
   isDropdownOpen.value = !isDropdownOpen.value;
 }
+
+function handleClickOutside(event: MouseEvent): void {
+  const target = event.target as Node;
+
+  if (searchControllerRef.value && !searchControllerRef.value.contains(target)) {
+    isDropdownOpen.value = false;
+  }
+}
 // ----- GESTIÓN DE CARGADO DE OPCIONES, SCROLLEO Y BÚSQUEDA ------ //
 function handleScroll(event: Event): void {
   const container = event.currentTarget as HTMLElement;
@@ -156,7 +167,6 @@ function handleScroll(event: Event): void {
   const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
   // Mandamos a cargar más registros si estamos al final.
   if (isAtBottom && !isLoadingMore.value) {
-    console.log("Has llegado al último registro");
     loadMoreOptions();
   }
 }
@@ -171,7 +181,7 @@ async function loadMoreOptions(): Promise<void> {
 
   try {
     const newOptions = await getOptions(
-      "cus_id",
+      props.field ?? "cus_id",
       limit.value,
       offset.value,
       searchTerm.value.trim(),
@@ -198,9 +208,8 @@ async function searchOption(searchValue: string): Promise<void> {
   isLoadingMore.value = true;
 
   try {
-    const newOptions = await getOptions("cus_id", limit.value, offset.value, searchValue);
-
-    console.log("Nuevas opciones cargadas tras búsqueda:", newOptions);
+    const fieldOption = props.field ?? "cus_id";
+    const newOptions = await getOptions(fieldOption, limit.value, offset.value, searchValue);
 
     options.value.push(...newOptions);
     offset.value += newOptions.length;
@@ -214,7 +223,6 @@ async function searchOption(searchValue: string): Promise<void> {
 // Loopea por las opciones y cambia el selected para que pueda pintarse correctamente.
 function validateSelected() {
   options.value.forEach((option) => {
-    console.log("Validando opción:", option, "con modelValue:", props.modelValue);
     if (props.modelValue && option.id === props.modelValue.id) {
       option.selected = true;
     } else {
@@ -243,10 +251,9 @@ async function selectOptionById(): Promise<void> {
   isLoadingMore.value = true;
 
   try {
-    // FALTA ENDPOINT POR ID.
+    const fieldOption = props.field ?? "cus_id";
     //const results = await getOptions("cus_id", 50, 0, searchedValue);
-    const results = await getOptions("cus_id", 50, 0, "LA NOSTRA PIZZA");
-    console.log(results);
+    const results = await getOptions(fieldOption, 50, 0, searchedValue);
     const searchedOption = results.find((option: DynamicModel) => {
       const optionId = option[props.optionValue];
 
@@ -254,8 +261,6 @@ async function selectOptionById(): Promise<void> {
     });
 
     if (!searchedOption) {
-      console.log(`No se encontró ninguna opción con el ID "${searchedValue}"`);
-
       emit("update:modelValue", null);
       emit("change", null);
       return;
@@ -311,6 +316,9 @@ onMounted(() => {
   loadMoreOptions();
   // Valido que la opción seleccionada se encuentre entre las opciones.
   validateSelected();
+
+  // Agrego un listener para controlar clicks fuera del componente.
+  document.addEventListener("click", handleClickOutside);
 });
 
 // Antes de desmontar el componente.
@@ -320,6 +328,9 @@ onBeforeUnmount(() => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
+
+  // Elimino el listener para controlar clicks fuera del componente.
+  document.removeEventListener("click", handleClickOutside);
 });
 </script>
 
@@ -342,7 +353,7 @@ onBeforeUnmount(() => {
 
   position: relative;
   width: 100%;
-  max-width: 720px;
+  /* max-width: 720px; */
 
   color: var(--lookup-text);
   font-family:

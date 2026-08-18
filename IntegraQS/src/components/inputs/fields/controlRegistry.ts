@@ -5,6 +5,7 @@ import IQSInputNumberBase from "@/components/inputs/base/IQSInputNumberBase.vue"
 import IQSInputMaskBase from "@/components/inputs/base/IQSInputMaskBase.vue";
 import IQSSelectBase from "@/components/inputs/base/IQSSelectBase.vue";
 import IQSCheckBoxBase from "@/components/inputs/base/IQSCheckBoxBase.vue";
+import SearchControler from "@/components/search/SearchController.vue";
 import type { ControlRegistration } from "@/types/types";
 
 // Según el tipo de control, se registrará el componente correspondiente.
@@ -31,8 +32,9 @@ const controlRegistry: Record<string, ControlRegistration> = {
 
   // Los dos tipos utilizan el mismo componente visual.
   "select linked": {
-    component: IQSSelectBase,
+    component: SearchControler,
     useFieldWrapper: true,
+    minSize: 2, // 2026-08-18 Se agrega la propiedad minSize ya que este componente necesitará un tamaño mínimo de 2 columnas.
   },
 
   checkbox: {
