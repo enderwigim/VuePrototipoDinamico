@@ -256,9 +256,9 @@ async function loadData() {
           headerData[0][winFormat.value.Header.primaryKey],
           winFormat.value,
         );
-        const detailModel = {
-          [Number(detail.value)]: detailData,
-        };
+        // const detailModel = {
+        //   [Number(detail.value)]: detailData,
+        // };
         detailsData[Number(detail.value)] = detailData;
       }
     }

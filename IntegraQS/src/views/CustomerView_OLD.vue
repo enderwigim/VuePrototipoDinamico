@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <IQSToolsRead
     @goToNext="goToNext"
     @goToPrevious="goToPrevious"
@@ -11,20 +11,7 @@
   />
   <main v-if="loaded" class="flex flex-col h-full gap-6">
     <header class="p-5 bg-white border-b border-gray-200">
-      <!-- <div class="flex items-start justify-between">
-          <h1 class="text-2xl font-bold">Clientes</h1>
-          <button
-            :class="
-              canSave
-                ? 'px-4 py-2 text-white bg-blue-500 rounded'
-                : 'px-4 py-2 text-gray-400 bg-gray-200 rounded cursor-not-allowed'
-            "
-            :disabled="!canSave"
-            @click="onSave"
-          >
-            Guardar
-          </button>
-        </div> -->
+
 
       <IQSHeader
         :header-style="headerStyle"
@@ -40,9 +27,9 @@
       <aside class="p-6 bg-white border rounded-xl">Aquí irán el lateral</aside>
     </section>
   </main>
-</template>
+</template> -->
 
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import IQSMain from "@/components/IQSMain.vue";
 
 // 2026-06-30. Santi. Hasta aquí todo funciona correctamente. Voy a empezar a trabajar en la información recogida por una tabla. Por lo que debo incorporar datos
@@ -202,4 +189,4 @@ function CancelChanges() {
 }
 
 onMounted(loadData);
-</script>
+</script> -->

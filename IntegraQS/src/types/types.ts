@@ -72,6 +72,7 @@ export type FieldState = "active" | "readOnly" | "disabled" | "hidden" | string;
 export interface ControlRegistration {
   component: Component;
   useFieldWrapper: boolean;
+  minSize?: number; // 2026-08-18 Se agrega la propiedad minSize para que los controles que necesiten un tamaño mínimo puedan indicarlo.
 }
 
 // Gestión de estado de ventanas.

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import CustomersView from "@/views/CustomerView.vue";
+// import CustomersView from "@/views/CustomerView.vue";
 import IQSView from "@/views/IQSView.vue";
 import LoginView from "@/views/LoginView.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -7,11 +7,11 @@ import { useAuthStore } from "@/stores/auth";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: "/customers/:id",
-      name: "customers",
-      component: CustomersView,
-    },
+    // {
+    //   path: "/customers/:id",
+    //   name: "customers",
+    //   component: CustomersView,
+    // },
     {
       path: "/login",
       name: "login",
@@ -22,11 +22,11 @@ const router = createRouter({
       name: "iqs",
       component: IQSView,
     },
-    {
-      path: "/test",
-      name: "test",
-      component: () => import("@/views/SearchControlerView.vue"),
-    },
+    // {
+    //   path: "/test",
+    //   name: "test",
+    //   component: () => import("@/views/SearchControlerView.vue"),
+    // },
   ],
 });
 
