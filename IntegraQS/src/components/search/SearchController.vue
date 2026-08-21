@@ -8,7 +8,7 @@
         type="text"
         v-model="inputId"
         placeholder="Código"
-        @change="selectOptionById"
+        @input="handleInput"
         @keyup.enter="selectOptionById"
         @dblclick="toggleDropdown"
       />
@@ -40,16 +40,50 @@
     <div class="lookup-field__dropdown" v-if="isDropdownOpen">
       <!-- Buscador -->
       <div class="lookup-field__search">
+        <!-- Icono de búsqueda -->
         <svg class="lookup-field__search-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
         </svg>
 
+        <!-- Campo de búsqueda -->
         <input
+          ref="searchTermInput"
           class="lookup-field__search-input"
           type="text"
           v-model="searchTerm"
+          @keydown.left="handleConceptLeft"
+          @keydown.right="handleConceptRight"
           placeholder="Buscar por código o descripción..."
         />
+
+        <!-- Navegación de conceptos -->
+        <div class="lookup-field__concept-actions">
+          <!-- Concepto anterior -->
+          <button
+            class="lookup-field__concept-button"
+            type="button"
+            aria-label="Concepto anterior"
+            title="Concepto anterior"
+            @click="removeConcept"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+
+          <!-- Guardar / avanzar concepto -->
+          <button
+            class="lookup-field__concept-button"
+            type="button"
+            aria-label="Guardar concepto y avanzar"
+            title="Guardar concepto y avanzar"
+            @click="addConcept"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Cabecera del listado -->
@@ -68,9 +102,28 @@
           :class="option.selected ? 'lookup-field__option--selected' : ''"
           type="button"
         >
-          <span class="lookup-field__option-id"> {{ option.id }} </span>
+          <!-- 2026-08-21 Santi. Se modifican los span para que se puedan pintar o no los trozos correspondientes con la búsqueda. -->
+          <!-- 
+            <span class="lookup-field__option-id"> {{ option.id }} </span>
+            <span class="lookup-field__option-description"> {{ option.description }} </span> 
+          -->
+          <span class="lookup-field__option-id">
+            <!-- Aquí lo que se hace es: Dentro del mismo span, se crea un template correspondiente con el texto correspondiente.
+             Pero lo interesante es que se loopea por todo el texto, búscando si corresponde o no y aquí se colocan únicamente los trozos que sí. -->
+            <template v-for="(part, index) in highlightText(option.id)" :key="index">
+              <span :style="part.match ? { color: props.highlightColor } : undefined">
+                {{ part.text }}
+              </span>
+            </template>
+          </span>
 
-          <span class="lookup-field__option-description"> {{ option.description }} </span>
+          <span class="lookup-field__option-description">
+            <template v-for="(part, index) in highlightText(option.description)" :key="index">
+              <span :style="part.match ? { color: props.highlightColor } : undefined">
+                {{ part.text }}
+              </span>
+            </template>
+          </span>
         </button>
       </div>
 
@@ -97,25 +150,36 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, onMounted, onBeforeUnmount } from "vue";
+import { watch, ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import type { DynamicModel } from "@/types/types";
-import { getOptions } from "@/services/iqs.service";
+import { getOptions, getOptionsByConcepts } from "@/services/iqs.service";
+import { isIntegerString } from "@/utils/typeValidators";
 // type Option = {
 //   id: string;
 //   description: string;
 // };
 // Variables y props:
 const isLoadingMore = ref(false); // Controlar si estoy cargando más.
+const hasMoreOptions = ref(false); // Controlar si hay más opciones para cargar.
 const options = ref<DynamicModel[]>([]); // Lista de opciones cargadas.
 const offset = ref(0); // Controlar el offset para la paginación.
 const limit = ref(50); // Controlar límite de la búsqueda.
 const searchTerm = ref(""); // Controlar el término de búsqueda.
+const searchTermInput = ref<HTMLInputElement | null>(null); // Referencia al input de búsqueda. Esto nos permitirá hacer focus.
 const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
 const isDropdownOpen = ref(false); // Control del dropdown (Visual)
 const inputId = ref(""); // Control de ID
 const searchControllerRef = ref<HTMLElement | null>(null); // Referencia al componente para controlar clicks fuera del mismo.
+const searchConcepts = ref<string[]>([]); // Control de conceptos. Esto nos permitirá ir guardando los conceptos que el usuario vaya agregando.
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
+let inputDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar tiempo de escritura en el input de ID.
+
+// Creamos una interfaz para el HighLight. Lo utilizamos únicamente aquí. Si en algún momento necesitamos globalizarlo, podemos hacerlo.
+interface HighlightPart {
+  text: string;
+  match: boolean;
+}
 
 // El componente recibirá. El modelo y puede recibir o no un optionValue. Por defecto es id. Esto lo necesitamos para que
 // el componente pueda trabajar con DynamicModel igual que otros inputs. De está manera podemos llamar a todos desde un mismo manager a futuro.
@@ -124,10 +188,12 @@ const props = withDefaults(
     modelValue: DynamicModel | null;
     optionValue?: string;
     field?: string; // 2026-08-18 Santi. Agrego el field como prop para poder pasarlo al getOptions y que busque por el campo correcto.
+    highlightColor?: string;
   }>(),
   {
     optionValue: "id",
     field: undefined,
+    highlightColor: "#dc2626", // Rojo por defecto, pero tal vez podríamos programarlo. De momento se deja asi.
   },
 );
 const emit = defineEmits<{
@@ -151,6 +217,10 @@ function getOptionKey(option: DynamicModel): string | number {
 // ----- GESTIÓN DEL DROPDOWN ----- //
 function toggleDropdown(): void {
   isDropdownOpen.value = !isDropdownOpen.value;
+  if (!isDropdownOpen.value) {
+    searchTerm.value = "";
+    searchConcepts.value = [];
+  }
 }
 
 function handleClickOutside(event: MouseEvent): void {
@@ -158,15 +228,20 @@ function handleClickOutside(event: MouseEvent): void {
 
   if (searchControllerRef.value && !searchControllerRef.value.contains(target)) {
     isDropdownOpen.value = false;
+    if (!isDropdownOpen.value) {
+      searchTerm.value = "";
+      searchConcepts.value = [];
+    }
   }
 }
 // ----- GESTIÓN DE CARGADO DE OPCIONES, SCROLLEO Y BÚSQUEDA ------ //
 function handleScroll(event: Event): void {
+  console.log("Scroll event:", event);
   const container = event.currentTarget as HTMLElement;
 
   const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
   // Mandamos a cargar más registros si estamos al final.
-  if (isAtBottom && !isLoadingMore.value) {
+  if (isAtBottom && !isLoadingMore.value && hasMoreOptions.value) {
     loadMoreOptions();
   }
 }
@@ -183,12 +258,17 @@ async function loadMoreOptions(): Promise<void> {
     const newOptions = await getOptions(
       props.field ?? "cus_id",
       limit.value,
-      offset.value,
       searchTerm.value.trim(),
     );
 
     options.value.push(...newOptions);
     offset.value += newOptions.length;
+
+    // Si nos devuelve menos registros que el límite,
+    // significa que hemos llegado al final.
+    if (newOptions.length < limit.value) {
+      hasMoreOptions.value = false;
+    }
 
     validateSelected();
   } finally {
@@ -196,23 +276,40 @@ async function loadMoreOptions(): Promise<void> {
   }
 }
 
+// 2026-08-21 Santi. Comento el reset ya que estaba generando un efecto visual extraño.
 // Reseteo de opciones.
-function resetOptions() {
-  options.value = [];
-  offset.value = 0;
-}
+// function resetOptions() {
+//   options.value = [];
+//   offset.value = 0;
+// }
 
 // Búsqueda de valores por la barra de búsqueda.
 async function searchOption(searchValue: string): Promise<void> {
-  resetOptions();
+  //resetOptions();
   isLoadingMore.value = true;
 
   try {
     const fieldOption = props.field ?? "cus_id";
-    const newOptions = await getOptions(fieldOption, limit.value, offset.value, searchValue);
+    let newOptions: DynamicModel[] = [];
+    let concepts = searchConcepts.value;
+    if (concepts.length > 0) {
+      // 2 Casos:
+      // 1. Si hay conceptos, pero no texto escrito en la barra de búsqueda. Solo lanzamos la función.
+      // 2. Hay concepto y texto escrito
+      if (searchValue) {
+        concepts = [...concepts, searchValue];
+      }
+      newOptions = await getOptionsByConcepts(fieldOption, limit.value, concepts);
+    } else {
+      newOptions = await getOptions(fieldOption, limit.value, searchValue);
+    }
 
-    options.value.push(...newOptions);
-    offset.value += newOptions.length;
+    // options.value.push(...newOptions);
+    // offset.value += newOptions.length;
+    // Sustituimos las opciones cuando YA tenemos la respuesta.
+    options.value = newOptions;
+    offset.value = newOptions.length;
+    hasMoreOptions.value = newOptions.length === limit.value;
 
     validateSelected();
   } finally {
@@ -230,6 +327,83 @@ function validateSelected() {
     }
   });
 }
+// 2026-08-21 Santi. Comentado por mejora que agrega conceptos.
+// function highlightText(value: unknown): HighlightPart[] {
+//   const text = String(value ?? "");
+//   const term = searchTerm.value.trim();
+
+//   if (!term) {
+//     return [
+//       {
+//         text,
+//         match: false,
+//       },
+//     ];
+//   }
+
+//   // Escapamos caracteres especiales de RegExp.
+//   const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+//   const regex = new RegExp(`(${escapedTerm})`, "gi");
+
+//   // Esto nos devolverá un array de objetos con el text. Separado por los trozos que coinciden con el término de búsqueda y un booleano indicando si es un match <3 o no.
+//   // EJEMPLO: Si el texto es "IntegraQS" y el término es "qs" devolverá:
+//   // [
+//   //   { text: "Integra", match: false },
+//   //   { text: "QS", match: true }
+//   // ]
+
+//   return text
+//     .split(regex)
+//     .filter((part) => part !== "")
+//     .map((part) => ({
+//       text: part,
+//       match: part.toLowerCase() === term.toLowerCase(),
+//     }));
+// }
+// Función que controlará el pintado del texto según el término de búsqueda.
+function highlightText(value: unknown): HighlightPart[] {
+  const text = String(value ?? "");
+
+  // Conceptos que deben resaltarse.
+  const terms = [...searchConcepts.value, searchTerm.value]
+    .map((term) => term.trim())
+    .filter((term) => term !== "");
+
+  // Si no hay términos de búsqueda, devolvemos el texto completo.
+  if (terms.length === 0) {
+    return [
+      {
+        text,
+        match: false,
+      },
+    ];
+  }
+
+  // Eliminamos términos repetidos.
+  const uniqueTerms = [...new Set(terms)];
+
+  // Ordenamos de mayor a menor longitud.
+  // Esto evita que "piz" capture antes que "pizza".
+  uniqueTerms.sort((a, b) => b.length - a.length);
+
+  // Escapamos caracteres especiales de RegExp.
+  const escapedTerms = uniqueTerms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+  // Construimos una regex que busque cualquiera de los conceptos.
+  const regex = new RegExp(`(${escapedTerms.join("|")})`, "gi");
+
+  return text
+    .split(regex)
+    .filter((part) => part !== "")
+    .map((part) => ({
+      text: part,
+
+      // Comprobamos si el fragmento coincide con cualquiera
+      // de los conceptos activos.
+      match: uniqueTerms.some((term) => part.toLowerCase() === term.toLowerCase()),
+    }));
+}
 
 // Función que emitirá eventos y cambios en el modelo al cambiar la opción seleccionada.
 function selectOption(option: DynamicModel): void {
@@ -239,8 +413,49 @@ function selectOption(option: DynamicModel): void {
   validateSelected();
 }
 
+// 2026-08-21 Santi.
+// function debouncedSelectOptionById(): void {
+//   if (inputDebounceTimer) {
+//     clearTimeout(inputDebounceTimer);
+//   }
+
+//   inputDebounceTimer = setTimeout(() => {
+//     selectOptionById();
+//   }, searchTime);
+// }
+
+// Para evitar que cuando el usuario se encuentre escribiendo números se ejecute la búsqueda por si solo. Separaremos el comportamiento. Tendremos un handle para el inputId que
+// se ejecutará con un debounce y que en caso de que solo sea número no hará nada. En caso de que sea texto, lanzará la búsqueda por descrición.
+// Por otro lado, el enter si lanzará la búsqueda por ID.
+function handleInput(): void {
+  const searchedValue = inputId.value.trim();
+
+  // Cancelamos cualquier debounce anterior.
+  if (inputDebounceTimer) {
+    clearTimeout(inputDebounceTimer);
+  }
+
+  // Si está vacío o si es un número, no hacemos nada.
+  if (!searchedValue || isIntegerString(searchedValue)) {
+    return;
+  }
+
+  // Si es un número, NO buscamos todavía.
+  // Esperamos a que el usuario pulse Enter.
+  // if (isIntegerString(searchedValue)) {
+  //   return;
+  // }
+
+  // Si contiene texto, lanzamos búsqueda con debounce.
+  inputDebounceTimer = setTimeout(() => {
+    selectOptionById();
+  }, searchTime);
+}
+
 async function selectOptionById(): Promise<void> {
   const searchedValue = inputId.value.trim();
+  const bIsIntegerString = isIntegerString(searchedValue);
+  const currentId = props.modelValue?.[props.optionValue];
   // Si dejamos el inputId vacío. No hacemos nada.
   if (!searchedValue) {
     emit("update:modelValue", null);
@@ -248,12 +463,24 @@ async function selectOptionById(): Promise<void> {
     return;
   }
 
+  if (!bIsIntegerString) {
+    // Si el valor no es un entero, intentaremos lanzar una búsqueda por descripción.
+    // Se hace un replace para quitar los número y que la búsqueda sea únicamente del texto.
+    searchTerm.value = searchedValue.replace(/[0-9]/g, "");
+    inputId.value = currentId === null || currentId === undefined ? "" : String(currentId);
+    isDropdownOpen.value = true;
+    await nextTick();
+
+    searchTermInput.value?.focus();
+    await searchOption(searchedValue);
+    return;
+  }
   isLoadingMore.value = true;
 
   try {
     const fieldOption = props.field ?? "cus_id";
     //const results = await getOptions("cus_id", 50, 0, searchedValue);
-    const results = await getOptions(fieldOption, 50, 0, searchedValue);
+    const results = await getOptions(fieldOption, 50, searchedValue);
     const searchedOption = results.find((option: DynamicModel) => {
       const optionId = option[props.optionValue];
 
@@ -261,8 +488,9 @@ async function selectOptionById(): Promise<void> {
     });
 
     if (!searchedOption) {
-      emit("update:modelValue", null);
-      emit("change", null);
+      // emit("update:modelValue", null);
+      // emit("change", null);
+      inputId.value = currentId === null || currentId === undefined ? "" : String(currentId);
       return;
     } else {
       searchedOption.active = true;
@@ -278,6 +506,45 @@ async function selectOptionById(): Promise<void> {
     isLoadingMore.value = false;
     isDropdownOpen.value = false;
   }
+}
+
+// GESTIÓN DE CONCEPTOS.
+// Funciones de añadido y borrado de conceptos.
+function addConcept() {
+  const newConcept = searchTerm.value;
+  // Si el concepto no está vacío y no está en la lista, lo añadimos.
+  if (newConcept !== "" && !searchConcepts.value.includes(newConcept)) {
+    searchConcepts.value.push(newConcept);
+  }
+  searchTerm.value = ""; // Limpiamos el input de búsqueda después de añadir el concepto.
+}
+
+function removeConcept() {
+  if (searchConcepts.value.length > 0) {
+    searchConcepts.value.pop();
+  }
+}
+
+function handleConceptLeft(event: KeyboardEvent): void {
+  // Solo usamos ← para conceptos si el buscador está vacío.
+  if (searchTerm.value !== "") {
+    return;
+  }
+
+  event.preventDefault();
+
+  removeConcept();
+}
+
+function handleConceptRight(event: KeyboardEvent): void {
+  // Solo usamos → si hay un concepto para guardar.
+  if (!searchTerm.value.trim()) {
+    return;
+  }
+
+  event.preventDefault();
+
+  addConcept();
 }
 
 // Watchers.
@@ -298,13 +565,12 @@ watch(
 
 // Watcher del termino de búsqueda. Únicamente se modificará en caso de que el usuario esté utilizando el input de búsqueda.
 // Si se modifica el termino comprobamos con un tiempo de espera.
-watch(searchTerm, (newSearchTerm) => {
-  // Si el contador existe. Lo borro.
+// 2026-08-21 Santi. Modificado para que también vigile los conceptos. De esta manera, si el usuario agrega un concepto, también se lanzará la búsqueda.
+watch([searchTerm, () => [...searchConcepts.value]], ([newSearchTerm]) => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
 
-  // Si se ha cambiado el input, creo un nuevo contador.
   searchDebounceTimer = setTimeout(() => {
     searchOption(newSearchTerm.trim());
   }, searchTime);
@@ -327,6 +593,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
+  }
+
+  if (inputDebounceTimer) {
+    clearTimeout(inputDebounceTimer);
   }
 
   // Elimino el listener para controlar clicks fuera del componente.
@@ -536,7 +806,11 @@ onBeforeUnmount(() => {
 
 .lookup-field__search-input {
   height: 38px;
+
   padding-left: 38px;
+
+  /* Dejamos espacio para los dos botones */
+  padding-right: 78px;
 
   border-radius: 7px;
   background: var(--lookup-background-soft);
@@ -750,6 +1024,65 @@ onBeforeUnmount(() => {
   border: 2px solid var(--lookup-background);
   border-radius: 10px;
   background: #d0d5dd;
+}
+
+/* --------------------------------------------------
+   Búsqueda por conceptos
+-------------------------------------------------- */
+
+.lookup-field__concept-actions {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  transform: translateY(-50%);
+}
+
+.lookup-field__concept-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  border: 0;
+  border-radius: 5px;
+
+  background: transparent;
+  color: var(--lookup-text-secondary);
+
+  cursor: pointer;
+
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.lookup-field__concept-button:hover {
+  background: var(--lookup-primary-soft);
+  color: var(--lookup-primary);
+}
+
+.lookup-field__concept-button:focus-visible {
+  outline: 2px solid var(--lookup-primary);
+  outline-offset: 1px;
+}
+
+.lookup-field__concept-button svg {
+  width: 17px;
+  height: 17px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* --------------------------------------------------

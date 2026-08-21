@@ -6,11 +6,7 @@
       class="w-full max-w-md rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/70 dark:shadow-black/40 px-8 py-8"
     >
       <div class="mb-8 text-center flex flex-col items-center">
-        <img
-            src="/Logo_Integra.jpg"
-            alt="Logo Integra"
-            class="h-20 w-auto object-contain"
-        />
+        <img src="/Logo_Integra.jpg" alt="Logo Integra" class="h-20 w-auto object-contain" />
         <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Iniciar sesión</h1>
         <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Accede al panel de gestión</p>
       </div>
@@ -90,7 +86,6 @@ const errorMessage = ref("");
 
 function getRedirectPath(): string {
   const redirect = route.query.redirect;
-  console.log("Redirect query parameter:", redirect);
   if (typeof redirect !== "string") {
     return "/iqs/customers";
   }
@@ -124,7 +119,6 @@ async function login() {
     auth.setToken(response.data.access_token);
 
     const redirectPath = getRedirectPath();
-    console.log("Redirecting to:", redirectPath);
     await router.replace(redirectPath);
   } catch (error) {
     console.error(error);

@@ -133,31 +133,55 @@ export async function getSelectedOption(
   field_name: string,
   value: number | string | boolean | null | undefined,
 ) {
-  console.log("getSelectedOption called with:", field_name, value);
   // Esta función obtiene la opción seleccionada de un campo, según el nombre del campo y el valor elegido.
   const response = await api.get(`${API_PATH}search/${field_name}?searched_value=${value}`);
-  console.log("getSelectedOption response:", response.data);
   return response.data[0];
 }
 
 export async function getOptions(
   field_name: string,
   limit: number | null = null,
-  offset: number | null = null,
   searched_value: string | null = null,
 ) {
+  console.log("searched_value: ", searched_value);
   // Esta función obtiene todas las opciones de un campo, permite paginación y limites.
   // Además, permite la búsqueda de un valor específico.
   let urlParams = "";
   if (limit) {
     urlParams += `?limit=${limit}`;
   }
-  if (offset) {
-    urlParams += `${urlParams ? "&" : "?"}offset=${offset}`;
-  }
+  // if (offset) {
+  //   urlParams += `${urlParams ? "&" : "?"}offset=${offset}`;
+  // }
   if (searched_value) {
     urlParams += `${urlParams ? "&" : "?"}searched_value=${searched_value}`;
   }
   const response = await api.get(`${API_PATH}search/${field_name}${urlParams}`);
+  console.log("getOptions response:", response.data);
   return response.data;
+}
+
+export async function getOptionsByConcepts(
+  field_name: string,
+  limit: number | null = null,
+  concepts: string[] | null = null,
+) {
+  console.log("concepts: ", concepts);
+  // Esta función obtiene todas las opciones de un campo, permite paginación y limites.
+  // Además, permite la búsqueda de un valor específico.
+  let urlParams = "";
+  if (limit) {
+    urlParams += `?limit=${limit}`;
+  }
+  // if (offset) {
+  //   urlParams += `${urlParams ? "&" : "?"}offset=${offset}`;
+  // }
+  if (concepts && concepts.length > 0) {
+    concepts.forEach((concept) => {
+      urlParams += `${urlParams ? "&" : "?"}concepts=${encodeURIComponent(concept)}`;
+    });
+    const response = await api.get(`${API_PATH}searchByConcepts/${field_name}${urlParams}`);
+    console.log("getOptionsByConcepts response:", response.data);
+    return response.data;
+  }
 }
