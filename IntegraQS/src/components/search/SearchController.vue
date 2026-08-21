@@ -40,10 +40,12 @@
     <div class="lookup-field__dropdown" v-if="isDropdownOpen">
       <!-- Buscador -->
       <div class="lookup-field__search">
+        <!-- Icono de búsqueda -->
         <svg class="lookup-field__search-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
         </svg>
 
+        <!-- Campo de búsqueda -->
         <input
           ref="searchTermInput"
           class="lookup-field__search-input"
@@ -51,6 +53,35 @@
           v-model="searchTerm"
           placeholder="Buscar por código o descripción..."
         />
+
+        <!-- Navegación de conceptos -->
+        <div class="lookup-field__concept-actions">
+          <!-- Concepto anterior -->
+          <button
+            class="lookup-field__concept-button"
+            type="button"
+            aria-label="Concepto anterior"
+            title="Concepto anterior"
+            @click="previousConcept"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6" />
+            </svg>
+          </button>
+
+          <!-- Guardar / avanzar concepto -->
+          <button
+            class="lookup-field__concept-button"
+            type="button"
+            aria-label="Guardar concepto y avanzar"
+            title="Guardar concepto y avanzar"
+            @click="nextConcept"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       <!-- Cabecera del listado -->
@@ -668,7 +699,11 @@ onBeforeUnmount(() => {
 
 .lookup-field__search-input {
   height: 38px;
+
   padding-left: 38px;
+
+  /* Dejamos espacio para los dos botones */
+  padding-right: 78px;
 
   border-radius: 7px;
   background: var(--lookup-background-soft);
@@ -882,6 +917,65 @@ onBeforeUnmount(() => {
   border: 2px solid var(--lookup-background);
   border-radius: 10px;
   background: #d0d5dd;
+}
+
+/* --------------------------------------------------
+   Búsqueda por conceptos
+-------------------------------------------------- */
+
+.lookup-field__concept-actions {
+  position: absolute;
+  top: 50%;
+  right: 18px;
+
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  transform: translateY(-50%);
+}
+
+.lookup-field__concept-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
+  padding: 0;
+
+  border: 0;
+  border-radius: 5px;
+
+  background: transparent;
+  color: var(--lookup-text-secondary);
+
+  cursor: pointer;
+
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.lookup-field__concept-button:hover {
+  background: var(--lookup-primary-soft);
+  color: var(--lookup-primary);
+}
+
+.lookup-field__concept-button:focus-visible {
+  outline: 2px solid var(--lookup-primary);
+  outline-offset: 1px;
+}
+
+.lookup-field__concept-button svg {
+  width: 17px;
+  height: 17px;
+
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 /* --------------------------------------------------
