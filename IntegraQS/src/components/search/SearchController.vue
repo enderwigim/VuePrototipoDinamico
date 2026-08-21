@@ -51,6 +51,8 @@
           class="lookup-field__search-input"
           type="text"
           v-model="searchTerm"
+          @keydown.left.prevent="removeConcept"
+          @keydown.right.prevent="addConcept"
           placeholder="Buscar por código o descripción..."
         />
 
@@ -62,7 +64,7 @@
             type="button"
             aria-label="Concepto anterior"
             title="Concepto anterior"
-            @click="previousConcept"
+            @click="removeConcept"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="m15 18-6-6 6-6" />
@@ -75,7 +77,7 @@
             type="button"
             aria-label="Guardar concepto y avanzar"
             title="Guardar concepto y avanzar"
-            @click="nextConcept"
+            @click="addConcept"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="m9 18 6-6-6-6" />
@@ -167,6 +169,7 @@ const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
 const isDropdownOpen = ref(false); // Control del dropdown (Visual)
 const inputId = ref(""); // Control de ID
 const searchControllerRef = ref<HTMLElement | null>(null); // Referencia al componente para controlar clicks fuera del mismo.
+const searchConcepts = ref<string[]>([]); // Control de conceptos. Esto nos permitirá ir guardando los conceptos que el usuario vaya agregando.
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
 let inputDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar tiempo de escritura en el input de ID.
@@ -436,6 +439,24 @@ async function selectOptionById(): Promise<void> {
   } finally {
     isLoadingMore.value = false;
     isDropdownOpen.value = false;
+  }
+}
+
+// GESTIÓN DE CONCEPTOS.
+// Funciones de añadido y borrado de conceptos.
+function addConcept() {
+  const newConcept = searchTerm.value;
+  // Si el concepto no está vacío y no está en la lista, lo añadimos.
+  if (newConcept !== "" && !searchConcepts.value.includes(newConcept)) {
+    searchConcepts.value.push(newConcept);
+    console.log("Conceptos añadidos:", searchConcepts.value);
+  }
+  searchTerm.value = ""; // Limpiamos el input de búsqueda después de añadir el concepto.
+}
+
+function removeConcept() {
+  if (searchConcepts.value.length > 0) {
+    searchConcepts.value.pop();
   }
 }
 
