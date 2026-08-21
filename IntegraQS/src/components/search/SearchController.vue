@@ -8,7 +8,7 @@
         type="text"
         v-model="inputId"
         placeholder="Código"
-        @input="debouncedSelectOptionById"
+        @input="handleInput"
         @keyup.enter="selectOptionById"
         @dblclick="toggleDropdown"
       />
@@ -182,6 +182,9 @@ function getOptionKey(option: DynamicModel): string | number {
 // ----- GESTIÓN DEL DROPDOWN ----- //
 function toggleDropdown(): void {
   isDropdownOpen.value = !isDropdownOpen.value;
+  if (!isDropdownOpen.value) {
+    searchTerm.value = "";
+  }
 }
 
 function handleClickOutside(event: MouseEvent): void {
@@ -189,6 +192,9 @@ function handleClickOutside(event: MouseEvent): void {
 
   if (searchControllerRef.value && !searchControllerRef.value.contains(target)) {
     isDropdownOpen.value = false;
+    if (!isDropdownOpen.value) {
+      searchTerm.value = "";
+    }
   }
 }
 // ----- GESTIÓN DE CARGADO DE OPCIONES, SCROLLEO Y BÚSQUEDA ------ //
@@ -307,11 +313,40 @@ function selectOption(option: DynamicModel): void {
   validateSelected();
 }
 
-function debouncedSelectOptionById(): void {
+// 2026-08-21 Santi.
+// function debouncedSelectOptionById(): void {
+//   if (inputDebounceTimer) {
+//     clearTimeout(inputDebounceTimer);
+//   }
+
+//   inputDebounceTimer = setTimeout(() => {
+//     selectOptionById();
+//   }, searchTime);
+// }
+
+// Para evitar que cuando el usuario se encuentre escribiendo números se ejecute la búsqueda por si solo. Separaremos el comportamiento. Tendremos un handle para el inputId que
+// se ejecutará con un debounce y que en caso de que solo sea número no hará nada. En caso de que sea texto, lanzará la búsqueda por descrición.
+// Por otro lado, el enter si lanzará la búsqueda por ID.
+function handleInput(): void {
+  const searchedValue = inputId.value.trim();
+
+  // Cancelamos cualquier debounce anterior.
   if (inputDebounceTimer) {
     clearTimeout(inputDebounceTimer);
   }
 
+  // Si está vacío o si es un número, no hacemos nada.
+  if (!searchedValue || isIntegerString(searchedValue)) {
+    return;
+  }
+
+  // Si es un número, NO buscamos todavía.
+  // Esperamos a que el usuario pulse Enter.
+  // if (isIntegerString(searchedValue)) {
+  //   return;
+  // }
+
+  // Si contiene texto, lanzamos búsqueda con debounce.
   inputDebounceTimer = setTimeout(() => {
     selectOptionById();
   }, searchTime);
@@ -353,8 +388,9 @@ async function selectOptionById(): Promise<void> {
     });
 
     if (!searchedOption) {
-      emit("update:modelValue", null);
-      emit("change", null);
+      // emit("update:modelValue", null);
+      // emit("change", null);
+      inputId.value = currentId === null || currentId === undefined ? "" : String(currentId);
       return;
     } else {
       searchedOption.active = true;
