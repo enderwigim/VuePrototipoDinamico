@@ -8,7 +8,7 @@
         type="text"
         v-model="inputId"
         placeholder="Código"
-        @change="selectOptionById"
+        @input="debouncedSelectOptionById"
         @keyup.enter="selectOptionById"
         @dblclick="toggleDropdown"
       />
@@ -45,6 +45,7 @@
         </svg>
 
         <input
+          ref="searchTermInput"
           class="lookup-field__search-input"
           type="text"
           v-model="searchTerm"
@@ -68,9 +69,28 @@
           :class="option.selected ? 'lookup-field__option--selected' : ''"
           type="button"
         >
-          <span class="lookup-field__option-id"> {{ option.id }} </span>
+          <!-- 2026-08-21 Santi. Se modifican los span para que se puedan pintar o no los trozos correspondientes con la búsqueda. -->
+          <!-- 
+            <span class="lookup-field__option-id"> {{ option.id }} </span>
+            <span class="lookup-field__option-description"> {{ option.description }} </span> 
+          -->
+          <span class="lookup-field__option-id">
+            <!-- Aquí lo que se hace es: Dentro del mismo span, se crea un template correspondiente con el texto correspondiente.
+             Pero lo interesante es que se loopea por todo el texto, búscando si corresponde o no y aquí se colocan únicamente los trozos que sí. -->
+            <template v-for="(part, index) in highlightText(option.id)" :key="index">
+              <span :style="part.match ? { color: props.highlightColor } : undefined">
+                {{ part.text }}
+              </span>
+            </template>
+          </span>
 
-          <span class="lookup-field__option-description"> {{ option.description }} </span>
+          <span class="lookup-field__option-description">
+            <template v-for="(part, index) in highlightText(option.description)" :key="index">
+              <span :style="part.match ? { color: props.highlightColor } : undefined">
+                {{ part.text }}
+              </span>
+            </template>
+          </span>
         </button>
       </div>
 
@@ -97,9 +117,10 @@
 </template>
 
 <script setup lang="ts">
-import { watch, ref, onMounted, onBeforeUnmount } from "vue";
+import { watch, ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import type { DynamicModel } from "@/types/types";
 import { getOptions } from "@/services/iqs.service";
+import { isIntegerString } from "@/utils/typeValidators";
 // type Option = {
 //   id: string;
 //   description: string;
@@ -110,12 +131,20 @@ const options = ref<DynamicModel[]>([]); // Lista de opciones cargadas.
 const offset = ref(0); // Controlar el offset para la paginación.
 const limit = ref(50); // Controlar límite de la búsqueda.
 const searchTerm = ref(""); // Controlar el término de búsqueda.
+const searchTermInput = ref<HTMLInputElement | null>(null); // Referencia al input de búsqueda. Esto nos permitirá hacer focus.
 const searchTime = 0o500; // Tiempo de espera para realizar una búsqueda.
 const isDropdownOpen = ref(false); // Control del dropdown (Visual)
 const inputId = ref(""); // Control de ID
 const searchControllerRef = ref<HTMLElement | null>(null); // Referencia al componente para controlar clicks fuera del mismo.
 
 let searchDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar el tiempo de búsqueda
+let inputDebounceTimer: ReturnType<typeof setTimeout> | undefined; // Controlar tiempo de escritura en el input de ID.
+
+// Creamos una interfaz para el HighLight. Lo utilizamos únicamente aquí. Si en algún momento necesitamos globalizarlo, podemos hacerlo.
+interface HighlightPart {
+  text: string;
+  match: boolean;
+}
 
 // El componente recibirá. El modelo y puede recibir o no un optionValue. Por defecto es id. Esto lo necesitamos para que
 // el componente pueda trabajar con DynamicModel igual que otros inputs. De está manera podemos llamar a todos desde un mismo manager a futuro.
@@ -124,10 +153,12 @@ const props = withDefaults(
     modelValue: DynamicModel | null;
     optionValue?: string;
     field?: string; // 2026-08-18 Santi. Agrego el field como prop para poder pasarlo al getOptions y que busque por el campo correcto.
+    highlightColor?: string;
   }>(),
   {
     optionValue: "id",
     field: undefined,
+    highlightColor: "#dc2626", // Rojo por defecto, pero tal vez podríamos programarlo. De momento se deja asi.
   },
 );
 const emit = defineEmits<{
@@ -183,7 +214,6 @@ async function loadMoreOptions(): Promise<void> {
     const newOptions = await getOptions(
       props.field ?? "cus_id",
       limit.value,
-      offset.value,
       searchTerm.value.trim(),
     );
 
@@ -196,23 +226,27 @@ async function loadMoreOptions(): Promise<void> {
   }
 }
 
+// 2026-08-21 Santi. Comento el reset ya que estaba generando un efecto visual extraño.
 // Reseteo de opciones.
-function resetOptions() {
-  options.value = [];
-  offset.value = 0;
-}
+// function resetOptions() {
+//   options.value = [];
+//   offset.value = 0;
+// }
 
 // Búsqueda de valores por la barra de búsqueda.
 async function searchOption(searchValue: string): Promise<void> {
-  resetOptions();
+  //resetOptions();
   isLoadingMore.value = true;
 
   try {
     const fieldOption = props.field ?? "cus_id";
-    const newOptions = await getOptions(fieldOption, limit.value, offset.value, searchValue);
+    const newOptions = await getOptions(fieldOption, limit.value, searchValue);
 
-    options.value.push(...newOptions);
-    offset.value += newOptions.length;
+    // options.value.push(...newOptions);
+    // offset.value += newOptions.length;
+    // Sustituimos las opciones cuando YA tenemos la respuesta.
+    options.value = newOptions;
+    offset.value = newOptions.length;
 
     validateSelected();
   } finally {
@@ -231,6 +265,40 @@ function validateSelected() {
   });
 }
 
+// Función que controlará el pintado del texto según el término de búsqueda.
+function highlightText(value: unknown): HighlightPart[] {
+  const text = String(value ?? "");
+  const term = searchTerm.value.trim();
+
+  if (!term) {
+    return [
+      {
+        text,
+        match: false,
+      },
+    ];
+  }
+
+  // Escapamos caracteres especiales de RegExp.
+  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const regex = new RegExp(`(${escapedTerm})`, "gi");
+
+  // Esto nos devolverá un array de objetos con el text. Separado por los trozos que coinciden con el término de búsqueda y un booleano indicando si es un match <3 o no.
+  // EJEMPLO: Si el texto es "IntegraQS" y el término es "qs" devolverá:
+  // [
+  //   { text: "Integra", match: false },
+  //   { text: "QS", match: true }
+  // ]
+
+  return text
+    .split(regex)
+    .filter((part) => part !== "")
+    .map((part) => ({
+      text: part,
+      match: part.toLowerCase() === term.toLowerCase(),
+    }));
+}
 // Función que emitirá eventos y cambios en el modelo al cambiar la opción seleccionada.
 function selectOption(option: DynamicModel): void {
   emit("update:modelValue", option);
@@ -239,8 +307,20 @@ function selectOption(option: DynamicModel): void {
   validateSelected();
 }
 
+function debouncedSelectOptionById(): void {
+  if (inputDebounceTimer) {
+    clearTimeout(inputDebounceTimer);
+  }
+
+  inputDebounceTimer = setTimeout(() => {
+    selectOptionById();
+  }, searchTime);
+}
+
 async function selectOptionById(): Promise<void> {
   const searchedValue = inputId.value.trim();
+  const bIsIntegerString = isIntegerString(searchedValue);
+  const currentId = props.modelValue?.[props.optionValue];
   // Si dejamos el inputId vacío. No hacemos nada.
   if (!searchedValue) {
     emit("update:modelValue", null);
@@ -248,12 +328,23 @@ async function selectOptionById(): Promise<void> {
     return;
   }
 
+  if (!bIsIntegerString) {
+    // Si el valor no es un entero, intentaremos lanzar una búsqueda por descripción.
+    searchTerm.value = searchedValue;
+    inputId.value = currentId === null || currentId === undefined ? "" : String(currentId);
+    isDropdownOpen.value = true;
+    await nextTick();
+
+    searchTermInput.value?.focus();
+    await searchOption(searchedValue);
+    return;
+  }
   isLoadingMore.value = true;
 
   try {
     const fieldOption = props.field ?? "cus_id";
     //const results = await getOptions("cus_id", 50, 0, searchedValue);
-    const results = await getOptions(fieldOption, 50, 0, searchedValue);
+    const results = await getOptions(fieldOption, 50, searchedValue);
     const searchedOption = results.find((option: DynamicModel) => {
       const optionId = option[props.optionValue];
 
@@ -327,6 +418,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
+  }
+
+  if (inputDebounceTimer) {
+    clearTimeout(inputDebounceTimer);
   }
 
   // Elimino el listener para controlar clicks fuera del componente.
