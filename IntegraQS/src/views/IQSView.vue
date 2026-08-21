@@ -301,7 +301,6 @@ async function onSave() {
       loadData();
       // showSuccessCreation();
     } else {
-      console.log(response);
     }
   } else {
     const windowName = currentWindow.value;
@@ -325,9 +324,7 @@ function onChange(newModel: DynamicModel) {
       windowStore.setWindowState(instanceId.value ?? "", "modify");
     }
   }
-  console.log("4 - IQSView recibe:", newModel);
   headerModel.value = newModel;
-  console.log("5 - headerModel actualizado:", headerModel.value);
 }
 
 async function goToNext() {

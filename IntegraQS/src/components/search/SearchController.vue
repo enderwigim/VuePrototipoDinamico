@@ -330,7 +330,8 @@ async function selectOptionById(): Promise<void> {
 
   if (!bIsIntegerString) {
     // Si el valor no es un entero, intentaremos lanzar una búsqueda por descripción.
-    searchTerm.value = searchedValue;
+    // Se hace un replace para quitar los número y que la búsqueda sea únicamente del texto.
+    searchTerm.value = searchedValue.replace(/[0-9]/g, "");
     inputId.value = currentId === null || currentId === undefined ? "" : String(currentId);
     isDropdownOpen.value = true;
     await nextTick();
