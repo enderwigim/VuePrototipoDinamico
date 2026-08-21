@@ -141,7 +141,6 @@ export async function getSelectedOption(
 export async function getOptions(
   field_name: string,
   limit: number | null = null,
-
   searched_value: string | null = null,
 ) {
   console.log("searched_value: ", searched_value);
@@ -160,4 +159,29 @@ export async function getOptions(
   const response = await api.get(`${API_PATH}search/${field_name}${urlParams}`);
   console.log("getOptions response:", response.data);
   return response.data;
+}
+
+export async function getOptionsByConcepts(
+  field_name: string,
+  limit: number | null = null,
+  concepts: string[] | null = null,
+) {
+  console.log("concepts: ", concepts);
+  // Esta función obtiene todas las opciones de un campo, permite paginación y limites.
+  // Además, permite la búsqueda de un valor específico.
+  let urlParams = "";
+  if (limit) {
+    urlParams += `?limit=${limit}`;
+  }
+  // if (offset) {
+  //   urlParams += `${urlParams ? "&" : "?"}offset=${offset}`;
+  // }
+  if (concepts && concepts.length > 0) {
+    concepts.forEach((concept) => {
+      urlParams += `${urlParams ? "&" : "?"}concepts=${encodeURIComponent(concept)}`;
+    });
+    const response = await api.get(`${API_PATH}searchByConcepts/${field_name}${urlParams}`);
+    console.log("getOptionsByConcepts response:", response.data);
+    return response.data;
+  }
 }

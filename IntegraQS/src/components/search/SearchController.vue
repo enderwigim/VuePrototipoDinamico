@@ -51,8 +51,8 @@
           class="lookup-field__search-input"
           type="text"
           v-model="searchTerm"
-          @keydown.left.prevent="removeConcept"
-          @keydown.right.prevent="addConcept"
+          @keydown.left="handleConceptLeft"
+          @keydown.right="handleConceptRight"
           placeholder="Buscar por código o descripción..."
         />
 
@@ -152,7 +152,7 @@
 <script setup lang="ts">
 import { watch, ref, onMounted, nextTick, onBeforeUnmount } from "vue";
 import type { DynamicModel } from "@/types/types";
-import { getOptions } from "@/services/iqs.service";
+import { getOptions, getOptionsByConcepts } from "@/services/iqs.service";
 import { isIntegerString } from "@/utils/typeValidators";
 // type Option = {
 //   id: string;
@@ -160,6 +160,7 @@ import { isIntegerString } from "@/utils/typeValidators";
 // };
 // Variables y props:
 const isLoadingMore = ref(false); // Controlar si estoy cargando más.
+const hasMoreOptions = ref(false); // Controlar si hay más opciones para cargar.
 const options = ref<DynamicModel[]>([]); // Lista de opciones cargadas.
 const offset = ref(0); // Controlar el offset para la paginación.
 const limit = ref(50); // Controlar límite de la búsqueda.
@@ -218,6 +219,7 @@ function toggleDropdown(): void {
   isDropdownOpen.value = !isDropdownOpen.value;
   if (!isDropdownOpen.value) {
     searchTerm.value = "";
+    searchConcepts.value = [];
   }
 }
 
@@ -228,16 +230,18 @@ function handleClickOutside(event: MouseEvent): void {
     isDropdownOpen.value = false;
     if (!isDropdownOpen.value) {
       searchTerm.value = "";
+      searchConcepts.value = [];
     }
   }
 }
 // ----- GESTIÓN DE CARGADO DE OPCIONES, SCROLLEO Y BÚSQUEDA ------ //
 function handleScroll(event: Event): void {
+  console.log("Scroll event:", event);
   const container = event.currentTarget as HTMLElement;
 
   const isAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 5;
   // Mandamos a cargar más registros si estamos al final.
-  if (isAtBottom && !isLoadingMore.value) {
+  if (isAtBottom && !isLoadingMore.value && hasMoreOptions.value) {
     loadMoreOptions();
   }
 }
@@ -260,6 +264,12 @@ async function loadMoreOptions(): Promise<void> {
     options.value.push(...newOptions);
     offset.value += newOptions.length;
 
+    // Si nos devuelve menos registros que el límite,
+    // significa que hemos llegado al final.
+    if (newOptions.length < limit.value) {
+      hasMoreOptions.value = false;
+    }
+
     validateSelected();
   } finally {
     isLoadingMore.value = false;
@@ -280,13 +290,26 @@ async function searchOption(searchValue: string): Promise<void> {
 
   try {
     const fieldOption = props.field ?? "cus_id";
-    const newOptions = await getOptions(fieldOption, limit.value, searchValue);
+    let newOptions: DynamicModel[] = [];
+    let concepts = searchConcepts.value;
+    if (concepts.length > 0) {
+      // 2 Casos:
+      // 1. Si hay conceptos, pero no texto escrito en la barra de búsqueda. Solo lanzamos la función.
+      // 2. Hay concepto y texto escrito
+      if (searchValue) {
+        concepts = [...concepts, searchValue];
+      }
+      newOptions = await getOptionsByConcepts(fieldOption, limit.value, concepts);
+    } else {
+      newOptions = await getOptions(fieldOption, limit.value, searchValue);
+    }
 
     // options.value.push(...newOptions);
     // offset.value += newOptions.length;
     // Sustituimos las opciones cuando YA tenemos la respuesta.
     options.value = newOptions;
     offset.value = newOptions.length;
+    hasMoreOptions.value = newOptions.length === limit.value;
 
     validateSelected();
   } finally {
@@ -304,13 +327,51 @@ function validateSelected() {
     }
   });
 }
+// 2026-08-21 Santi. Comentado por mejora que agrega conceptos.
+// function highlightText(value: unknown): HighlightPart[] {
+//   const text = String(value ?? "");
+//   const term = searchTerm.value.trim();
 
+//   if (!term) {
+//     return [
+//       {
+//         text,
+//         match: false,
+//       },
+//     ];
+//   }
+
+//   // Escapamos caracteres especiales de RegExp.
+//   const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+//   const regex = new RegExp(`(${escapedTerm})`, "gi");
+
+//   // Esto nos devolverá un array de objetos con el text. Separado por los trozos que coinciden con el término de búsqueda y un booleano indicando si es un match <3 o no.
+//   // EJEMPLO: Si el texto es "IntegraQS" y el término es "qs" devolverá:
+//   // [
+//   //   { text: "Integra", match: false },
+//   //   { text: "QS", match: true }
+//   // ]
+
+//   return text
+//     .split(regex)
+//     .filter((part) => part !== "")
+//     .map((part) => ({
+//       text: part,
+//       match: part.toLowerCase() === term.toLowerCase(),
+//     }));
+// }
 // Función que controlará el pintado del texto según el término de búsqueda.
 function highlightText(value: unknown): HighlightPart[] {
   const text = String(value ?? "");
-  const term = searchTerm.value.trim();
 
-  if (!term) {
+  // Conceptos que deben resaltarse.
+  const terms = [...searchConcepts.value, searchTerm.value]
+    .map((term) => term.trim())
+    .filter((term) => term !== "");
+
+  // Si no hay términos de búsqueda, devolvemos el texto completo.
+  if (terms.length === 0) {
     return [
       {
         text,
@@ -319,26 +380,31 @@ function highlightText(value: unknown): HighlightPart[] {
     ];
   }
 
+  // Eliminamos términos repetidos.
+  const uniqueTerms = [...new Set(terms)];
+
+  // Ordenamos de mayor a menor longitud.
+  // Esto evita que "piz" capture antes que "pizza".
+  uniqueTerms.sort((a, b) => b.length - a.length);
+
   // Escapamos caracteres especiales de RegExp.
-  const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escapedTerms = uniqueTerms.map((term) => term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
-  const regex = new RegExp(`(${escapedTerm})`, "gi");
-
-  // Esto nos devolverá un array de objetos con el text. Separado por los trozos que coinciden con el término de búsqueda y un booleano indicando si es un match <3 o no.
-  // EJEMPLO: Si el texto es "IntegraQS" y el término es "qs" devolverá:
-  // [
-  //   { text: "Integra", match: false },
-  //   { text: "QS", match: true }
-  // ]
+  // Construimos una regex que busque cualquiera de los conceptos.
+  const regex = new RegExp(`(${escapedTerms.join("|")})`, "gi");
 
   return text
     .split(regex)
     .filter((part) => part !== "")
     .map((part) => ({
       text: part,
-      match: part.toLowerCase() === term.toLowerCase(),
+
+      // Comprobamos si el fragmento coincide con cualquiera
+      // de los conceptos activos.
+      match: uniqueTerms.some((term) => part.toLowerCase() === term.toLowerCase()),
     }));
 }
+
 // Función que emitirá eventos y cambios en el modelo al cambiar la opción seleccionada.
 function selectOption(option: DynamicModel): void {
   emit("update:modelValue", option);
@@ -449,7 +515,6 @@ function addConcept() {
   // Si el concepto no está vacío y no está en la lista, lo añadimos.
   if (newConcept !== "" && !searchConcepts.value.includes(newConcept)) {
     searchConcepts.value.push(newConcept);
-    console.log("Conceptos añadidos:", searchConcepts.value);
   }
   searchTerm.value = ""; // Limpiamos el input de búsqueda después de añadir el concepto.
 }
@@ -458,6 +523,28 @@ function removeConcept() {
   if (searchConcepts.value.length > 0) {
     searchConcepts.value.pop();
   }
+}
+
+function handleConceptLeft(event: KeyboardEvent): void {
+  // Solo usamos ← para conceptos si el buscador está vacío.
+  if (searchTerm.value !== "") {
+    return;
+  }
+
+  event.preventDefault();
+
+  removeConcept();
+}
+
+function handleConceptRight(event: KeyboardEvent): void {
+  // Solo usamos → si hay un concepto para guardar.
+  if (!searchTerm.value.trim()) {
+    return;
+  }
+
+  event.preventDefault();
+
+  addConcept();
 }
 
 // Watchers.
@@ -478,13 +565,12 @@ watch(
 
 // Watcher del termino de búsqueda. Únicamente se modificará en caso de que el usuario esté utilizando el input de búsqueda.
 // Si se modifica el termino comprobamos con un tiempo de espera.
-watch(searchTerm, (newSearchTerm) => {
-  // Si el contador existe. Lo borro.
+// 2026-08-21 Santi. Modificado para que también vigile los conceptos. De esta manera, si el usuario agrega un concepto, también se lanzará la búsqueda.
+watch([searchTerm, () => [...searchConcepts.value]], ([newSearchTerm]) => {
   if (searchDebounceTimer) {
     clearTimeout(searchDebounceTimer);
   }
 
-  // Si se ha cambiado el input, creo un nuevo contador.
   searchDebounceTimer = setTimeout(() => {
     searchOption(newSearchTerm.trim());
   }, searchTime);
