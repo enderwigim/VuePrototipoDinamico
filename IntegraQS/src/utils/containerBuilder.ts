@@ -2,6 +2,8 @@ export type Breakpoint = "default" | "sm" | "md" | "lg" | "xl" | "2xl";
 
 export type GridColsValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
 
+export type GridRowsValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
 export type SpacingValue = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12 | "auto";
 
 export type ResponsiveValues<T> = Partial<Record<Breakpoint, T>>;
@@ -19,6 +21,7 @@ export interface SpacingStyles {
 export interface ContainerStyles {
   display?: "grid" | "flex" | string;
   grid_cols?: ResponsiveValues<GridColsValue>;
+  grid_rows?: ResponsiveValues<GridRowsValue>;
   gap?: ResponsiveValues<SpacingValue>;
   padding?: SpacingStyles;
   margin?: SpacingStyles;
@@ -46,6 +49,21 @@ const GRID_COLS_CLASSES: Record<GridColsValue, string> = {
   10: "grid-cols-10",
   11: "grid-cols-11",
   12: "grid-cols-12",
+};
+
+const GRID_ROWS_CLASSES: Record<GridRowsValue, string> = {
+  1: "grid-rows-1",
+  2: "grid-rows-2",
+  3: "grid-rows-3",
+  4: "grid-rows-4",
+  5: "grid-rows-5",
+  6: "grid-rows-6",
+  7: "grid-rows-7",
+  8: "grid-rows-8",
+  9: "grid-rows-9",
+  10: "grid-rows-10",
+  11: "grid-rows-11",
+  12: "grid-rows-12",
 };
 
 const SPACING_CLASSES: Record<SpacingValue, string> = {
@@ -95,8 +113,13 @@ function buildResponsiveClass<T extends string | number>(
   return classes;
 }
 
+// Aquí construimos las clases de nuestras columnas
 function buildGridColsClasses(values?: ResponsiveValues<GridColsValue>): string[] {
   return buildResponsiveClass(values, GRID_COLS_CLASSES);
+}
+// Aquí se contruyen las filas
+function buildGridRowsClasses(values?: ResponsiveValues<GridRowsValue>): string[] {
+  return buildResponsiveClass(values, GRID_ROWS_CLASSES);
 }
 
 function buildSpacingClasses(prefix: string, values?: ResponsiveValues<SpacingValue>): string[] {
@@ -164,11 +187,14 @@ export function buildContainerClasses(styles?: ContainerStyles): string {
     return "";
   }
 
+  // En caso de que nuestra sección sea de tipo grid. De momento lo será siempre
   if (styles.display === "grid") {
     classes.push("grid");
     classes.push(...buildGridColsClasses(styles.grid_cols));
+    classes.push(...buildGridRowsClasses(styles.grid_rows));
   }
 
+  // Caso flex. Necesita ampliarse, pero no trabajaremos con el de momento.
   if (styles.display === "flex") {
     classes.push("flex");
   }
@@ -178,5 +204,4 @@ export function buildContainerClasses(styles?: ContainerStyles): string {
   classes.push(...buildMarginClasses(styles.margin));
 
   return classes.join(" ");
-  console.log("Container classes:", classes.join(" "));
 }
