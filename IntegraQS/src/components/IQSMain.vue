@@ -90,7 +90,7 @@ import { buildContainerClasses } from "@/utils/containerBuilder";
 // import DataTable from "@/components/DataTable/DataTablePaginator.vue";
 // import DataColumn from "@/components/DataTable/DataColumn.vue";
 // Importación de componentes internos de inputs.
-import IQSInputTextBase from "@/components/inputs/base/IQSInputTextBase.vue";
+// import IQSInputTextBase from "@/components/inputs/base/IQSInputTextBase.vue";
 
 const props = withDefaults(
   defineProps<{

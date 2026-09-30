@@ -39,31 +39,42 @@
         >
       </div>
     </header>
-    <main class="flex flex-col h-full">
-      <section id="header-section">
-        <IQSHeader
-          :header-style="headerStyle"
-          :header-fields="winFormat.Header.fields"
-          :model="headerModel"
-          @update:model="onChange"
-        ></IQSHeader>
-      </section>
-      <section class="grid flex-1 grid-cols-[1fr_320px] gap-6">
-        <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
-          <IQSMain
+    <!-- <main class="flex flex-col h-full"> -->
+    <div class="flex h-dvh">
+      <div class="flex flex-1 min-w-0 flex-col">
+        <section id="header-section">
+          <IQSHeader
+            :header-style="headerStyle"
+            :header-fields="winFormat.Header.fields"
             :model="headerModel"
-            :main-tabs="winFormat.Details"
-            :detail-values="detailsModel"
-            @open-detail="openDetailWindow"
             @update:model="onChange"
-          >
-          </IQSMain>
-        </div>
-        <aside v-if="winFormat.Lateral.length > 0" class="p-6 bg-white border rounded-xl">
-          Aquí irán el lateral
-        </aside>
-      </section>
-    </main>
+          ></IQSHeader>
+          <!-- 2026-09-30 Le estaba dando a la sección un tamaño de columna especifico. No venia siendo necesario. -->
+          <section class="grid flex-1 gap-6 p-6">
+            <!-- <section class="grid flex-1 grid-cols-[1fr_320px] gap-6"> -->
+            <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
+              <IQSMain
+                :model="headerModel"
+                :main-tabs="winFormat.Details"
+                :detail-values="detailsModel"
+                @open-detail="openDetailWindow"
+                @update:model="onChange"
+              >
+              </IQSMain>
+            </div>
+            <!-- <aside v-if="winFormat.Lateral.length > 0" class="p-6 bg-white border rounded-xl">
+              Aquí irán el lateral
+            </aside> -->
+          </section>
+        </section>
+      </div>
+      <!-- Panel derecho -->
+      <!--2026-09-30 AÑADIR CUANDO QUERAMOS VISUALIZARLO.   -->
+      <aside class="hidden w-40 shrink-0 border-l bg-white" Aquí irán el lateral>
+        <!-- botones, acciones, etc -->
+        ACA LATERAL
+      </aside>
+    </div>
   </div>
   <Teleport to="body">
     <Dialog
