@@ -20,8 +20,26 @@ const props = defineProps<{
 
 const attrs = useAttrs();
 
+// const tabPanelPt = {
+//   "pt:root:class": `
+//     w-full
+
+//     bg-white
+//     dark:bg-slate-900
+
+//     text-slate-800
+//     dark:text-slate-100
+
+//     px-4
+//     py-4
+//   `,
+// };
 const tabPanelPt = {
   "pt:root:class": `
+    flex
+    flex-col
+    flex-1
+    min-h-0
     w-full
 
     bg-white
@@ -30,15 +48,16 @@ const tabPanelPt = {
     text-slate-800
     dark:text-slate-100
 
-    px-4
-    py-4
+
   `,
 };
-
+//     px-4
+// py-4
 const tabPanelAttrs = computed<Record<string, unknown>>(function () {
   const cleanAttrs: Record<string, unknown> = {
     ...attrs,
   };
+  console.log(cleanAttrs);
 
   if (cleanAttrs.class === null) {
     delete cleanAttrs.class;

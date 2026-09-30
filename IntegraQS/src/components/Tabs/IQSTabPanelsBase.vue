@@ -18,6 +18,10 @@ const attrs = useAttrs();
 
 const tabPanelsPt = {
   "pt:root:class": `
+    flex
+    flex-col
+    flex-1
+    min-h-0
     w-full
 
     bg-white
@@ -28,11 +32,11 @@ const tabPanelsPt = {
 
     outline-none
 
-    px-4
-    py-4
+
   `,
 };
-
+//     px-4
+// py-4
 const tabPanelsAttrs = computed<Record<string, unknown>>(function () {
   const cleanAttrs: Record<string, unknown> = {
     ...attrs,

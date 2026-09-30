@@ -12,62 +12,68 @@
         {{ tab.title }}
       </Tab>
     </TabList>
-    <TabPanels>
+    <TabPanels class="flex-1 min-h-0 w-full flex flex-col">
       <TabPanel
         v-for="tab in props.mainTabs"
         :key="tab.title"
         :value="tab.value"
-        :class="buildContainerClasses(tab.style)"
+        class="flex-1 min-h-0 w-full"
       >
-        <template v-for="(control, index) in tab.controls">
-          <DataTable
-            v-if="control.type == 'table'"
-            :value="(props.detailValues[tab.value] ?? []) as unknown[]"
-            paginator
-            :rows="6"
-            pt:table="min-w-200"
-            :pt="style"
-          >
-            <Column v-if="tab.value > 0 && tab.value < 50" class="w-24" header="Acciones">
-              <template #body="{ data }">
-                <div class="flex items-center justify-center gap-2">
-                  <Button
-                    icon="pi pi-pencil"
-                    @click="editDetail(data, tab.maintenanceWindow)"
-                    severity="secondary"
-                    rounded
-                    class="h-8 w-8 items-center justify-center rounded-lg bg-sky-400 text-white shadow transition hover:bg-sky-500! active:scale-95 cursor-pointer"
-                    >✏️</Button
-                  >
-                  <Button
-                    icon="pi pi-pencil"
-                    @click="deleteDetail(data)"
-                    severity="secondary"
-                    rounded
-                    class="h-8 w-8 items-center justify-center rounded-lg bg-red-400 text-white shadow transition hover:bg-red-500! active:scale-95 cursor-pointer"
-                    >🗑️</Button
-                  >
-                </div>
-              </template>
-            </Column>
-            <Column
-              v-for="column in control.columns"
-              :key="column.key"
-              :field="column.field ?? column.key"
-              :header="column.header"
+        <!-- La clase tendremos que pasarla a un div diferente. Porque el tab no recibe atributos. -->
+        <div
+          :class="buildContainerClasses(tab.style)"
+          class="flex-1 min-h-0 w-full h-full overflow-hidden"
+        >
+          <template v-for="(control, index) in tab.controls">
+            <DataTable
+              v-if="control.type == 'table'"
+              :value="(props.detailValues[tab.value] ?? []) as unknown[]"
+              paginator
+              :rows="6"
+              pt:table="min-w-200"
+              :pt="style"
+            >
+              <Column v-if="tab.value > 0 && tab.value < 50" class="w-24" header="Acciones">
+                <template #body="{ data }">
+                  <div class="flex items-center justify-center gap-2">
+                    <Button
+                      icon="pi pi-pencil"
+                      @click="editDetail(data, tab.maintenanceWindow)"
+                      severity="secondary"
+                      rounded
+                      class="h-8 w-8 items-center justify-center rounded-lg bg-sky-400 text-white shadow transition hover:bg-sky-500! active:scale-95 cursor-pointer"
+                      >✏️</Button
+                    >
+                    <Button
+                      icon="pi pi-pencil"
+                      @click="deleteDetail(data)"
+                      severity="secondary"
+                      rounded
+                      class="h-8 w-8 items-center justify-center rounded-lg bg-red-400 text-white shadow transition hover:bg-red-500! active:scale-95 cursor-pointer"
+                      >🗑️</Button
+                    >
+                  </div>
+                </template>
+              </Column>
+              <Column
+                v-for="column in control.columns"
+                :key="column.key"
+                :field="column.field ?? column.key"
+                :header="column.header"
+              />
+            </DataTable>
+            <!-- <IQSInputTextBase v-if="control.type === 'string'" :placeholder="control.placeholder"
+              :readonly="control.state === 'readOnly'" :key="control.name">
+            </IQSInputTextBase> -->
+            <IQSControlManager
+              v-else
+              :key="control.name ?? control.field ?? index"
+              :control="control"
+              :model-value="getModelValue(control)"
+              @update:model-value="setModelValue(control, $event)"
             />
-          </DataTable>
-          <!-- <IQSInputTextBase v-if="control.type === 'string'" :placeholder="control.placeholder"
-            :readonly="control.state === 'readOnly'" :key="control.name">
-          </IQSInputTextBase> -->
-          <IQSControlManager
-            v-else
-            :key="control.name ?? control.field ?? index"
-            :control="control"
-            :model-value="getModelValue(control)"
-            @update:model-value="setModelValue(control, $event)"
-          />
-        </template>
+          </template>
+        </div>
       </TabPanel>
     </TabPanels>
   </Tabs>
@@ -87,6 +93,7 @@ import DataTable from "@/volt/DataTable.vue";
 import Column from "primevue/column";
 import Button from "@/volt/Button.vue";
 import { buildContainerClasses } from "@/utils/containerBuilder";
+import { computed } from "vue";
 // import DataTable from "@/components/DataTable/DataTablePaginator.vue";
 // import DataColumn from "@/components/DataTable/DataColumn.vue";
 // Importación de componentes internos de inputs.
@@ -104,6 +111,12 @@ const props = withDefaults(
     model: () => ({}),
   },
 );
+
+const debugTabClasses = computed(() => {
+  return props.mainTabs.map((tab) => ({
+    classes: buildContainerClasses(tab.style),
+  }));
+});
 
 function getModelValue(field: Field): FieldValue {
   if (!field.field) {
@@ -245,11 +258,6 @@ const style = {
   rowReorderIndicatorDown: `absolute hidden`,
 };
 
-// function editDetail(row: DynamicModel) {
-//   alert("Editando...")
-//   console.log("Editar: ", row);
-// }
-
 function editDetail(row: DynamicModel, windowName: string) {
   emit(
     "open-detail",
@@ -268,61 +276,4 @@ const emit = defineEmits<{
   (e: "open-detail", window: string, id: number | string): void;
   (e: "update:model", value: DynamicModel): void;
 }>();
-
-// const dataExample = [
-//   {}
-// ]
-
-// console.log("props.mainTabs", props.mainTabs);
-// console.log("props.detailData", props.detailValues[0]);
-
-// const customersTableProps = {
-//   removableSort: true,
-//   sortMode: "multiple",
-//   dataKey: "id",
-//   editMode: "cell",
-//   tableStyle: "min-width: 900px; width: 100%; table-layout: fixed",
-// };
-
-// const customerColumns = [
-//   {
-//     key: "referencia",
-//     field: "referencia",
-//     header: "Referencia",
-//     headerClass: "w-[140px] text-center",
-//     bodyClass: "w-[140px] text-center",
-//     columnPrimeVueConfig: {
-//       sortable: true,
-//     },
-//     columnConfig: {
-//       editable: true,
-//     },
-//   },
-//   {
-//     key: "nombre",
-//     field: "nombre",
-//     header: "Nombre",
-//     headerClass: "w-[260px]",
-//     bodyClass: "w-[260px]",
-//     columnPrimeVueConfig: {
-//       sortable: true,
-//     },
-//     columnConfig: {
-//       editable: true,
-//     },
-//   },
-//   {
-//     key: "referenciaComercial",
-//     field: "referenciaComercial",
-//     header: "Ref. comercial",
-//     headerClass: "w-[180px] text-center",
-//     bodyClass: "w-[180px] text-center",
-//     columnPrimeVueConfig: {
-//       sortable: true,
-//     },
-//     columnConfig: {
-//       editable: true,
-//     },
-//   },
-// ];
 </script>

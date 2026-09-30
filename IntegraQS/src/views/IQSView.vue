@@ -1,11 +1,7 @@
 <template>
   <!-- <Toast /> -->
   <!-- <div v-if="loaded" class="flex flex-col justify-between px-4 py-1 overflow-hidden scrollbar-none"> -->
-  <div
-    v-if="loaded"
-    class="flex w-full flex-col px-4 py-1 overflow-hidden scrollbar-none"
-    :class="props.modal ? 'h-full min-h-0' : 'min-h-dvh'"
-  >
+  <div v-if="loaded" class="flex w-full min-h-dvh flex-col px-4 py-1">
     <header
       class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex justify-between"
     >
@@ -40,9 +36,9 @@
       </div>
     </header>
     <!-- <main class="flex flex-col h-full"> -->
-    <div class="flex h-dvh">
+    <div class="flex min-h-0 flex-1">
       <div class="flex flex-1 min-w-0 flex-col">
-        <section id="header-section">
+        <section id="header-section" class="flex flex-1 min-h-0 flex-col">
           <IQSHeader
             :header-style="headerStyle"
             :header-fields="winFormat.Header.fields"
@@ -50,7 +46,8 @@
             @update:model="onChange"
           ></IQSHeader>
           <!-- 2026-09-30 Le estaba dando a la sección un tamaño de columna especifico. No venia siendo necesario. -->
-          <section class="grid flex-1 gap-6 p-6">
+          <!-- <section class="grid flex-1 min-h-0 gap-6 p-6"> -->
+          <section class="grid gap-6 p-6">
             <!-- <section class="grid flex-1 grid-cols-[1fr_320px] gap-6"> -->
             <div v-if="winFormat.Details.length > 0" class="p-6 bg-white border rounded-xl">
               <IQSMain
