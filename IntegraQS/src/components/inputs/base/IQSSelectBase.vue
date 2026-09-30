@@ -19,10 +19,7 @@ const inputSelectPt = {
   "pt:root:class": `
     w-full
     h-10
-
-    flex
-    items-center
-
+    !p-0
     rounded-lg
     border
     border-slate-300
@@ -50,19 +47,15 @@ const inputSelectPt = {
     p-disabled:bg-slate-100
     p-disabled:border-slate-200
     p-disabled:text-slate-400
-    p-disabled:cursor-not-allowed
-    p-disabled:shadow-none
-  `,
+`,
 
   "pt:label:class": `
     flex
     items-center
 
     w-full
-    h-full
 
     px-3
-    py-2
 
     text-sm
     font-normal
@@ -78,7 +71,7 @@ const inputSelectPt = {
     flex
     items-center
     justify-center
-
+    shrink-0
     w-10
     h-full
 
@@ -162,7 +155,7 @@ const props = withDefaults(
   defineProps<{
     options?: SelectOption[];
     parentField?: string | null;
-    selectType?: string | null
+    selectType?: string | null;
   }>(),
   {
     options: () => [],
@@ -180,10 +173,10 @@ async function loadOptionsByField(selectType: string): Promise<SelectOption[]> {
   }
 
   // Aqui hacemos la petición
-  let result = await getOptions(String(props.parentField))
+  const result = await getOptions(String(props.parentField));
   const formatedResult = result.map((item: any) => ({
-      ...item,
-      disabled: false
+    ...item,
+    disabled: false,
   }));
   return formatedResult;
 }
