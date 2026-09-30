@@ -1,50 +1,45 @@
 <template>
-  <!-- 2026-09-29 El que se encarga de asignar los tamaños será el componente que maneja que pintaremos. Los demás controles,
-   se dedirarán a ocupar todo el espacio posible. -->
-  <!-- Para esto se crea un div que contiene a todo lo demás que gestionaremos. Este será el que tendrá los tamaños. -->
-  <div :class="controlLayoutClasses" class="min-w-0 min-h-0 w-full">
-    <!-- Control desconocido || Error-->
-    <div
-      v-if="!registration"
-      class="rounded-md border border-red-300 bg-red-50 text-sm text-red-700"
-    >
-      Tipo de control no soportado: {{ control.type }}
-    </div>
+  <!-- Control desconocido -->
+  <div
+    v-if="!registration"
+    class="rounded-md border border-red-300 bg-red-50 p-2 text-sm text-red-700"
+  >
+    Tipo de control no soportado: {{ control.type }}
+  </div>
 
-    <!-- Control envuelto en IQSInputField || Inputs -->
-    <IQSInputField
-      v-else-if="registration.useFieldWrapper"
-      :label="control.title"
-      :input-id="control.name"
-    >
-      <SearchControler
-        v-if="normalizedType === 'select linked'"
-        :model-value="searchValue"
-        :field="String(control.field)"
-        @update:model-value="handleSearchUpdate"
-      />
+  <!-- Control envuelto en IQSInputField -->
+  <IQSInputField
+    v-else-if="registration.useFieldWrapper"
+    :label="control.title"
+    :input-id="control.name"
+    :size="effectiveSize"
+    :control-style="control.style"
+  >
+    <SearchControler
+      v-if="normalizedType === 'select linked'"
+      :model-value="searchValue"
+      :field="String(control.field)"
+      @update:model-value="handleSearchUpdate"
+    />
 
-      <component
-        v-else
-        :is="registration.component"
-        v-bind="componentProps"
-        :model-value="displayValue"
-        @update:model-value="handleUpdate"
-      />
-    </IQSInputField>
-
-    <!-- Controles sin WRAPPER. Aquí separamos entre 2. Con Modelo y Sin Modelo. -->
     <component
-      v-else-if="registration.usesModelValue"
+      v-else
       :is="registration.component"
       v-bind="componentProps"
       :model-value="displayValue"
       @update:model-value="handleUpdate"
     />
+  </IQSInputField>
 
-    <!-- IMAGEN, TEXTO, SEPARADOR, ETC. -->
-    <component v-else :is="registration.component" v-bind="componentProps" />
-  </div>
+  <!-- Para controles futuros que no necesiten IQSInputField -->
+  <component
+    :is="registration.component"
+    v-else
+    v-bind="componentProps"
+    :model-value="displayValue"
+    :control-style="control.style"
+    @update:model-value="handleUpdate"
+  />
 </template>
 
 <script setup lang="ts">
@@ -54,8 +49,6 @@ import type { DynamicModel, Field, FieldValue } from "@/types/types";
 import IQSInputField from "@/components/inputs/fields/IQSInputField.vue";
 import SearchControler from "@/components/search/SearchController.vue";
 import { getSelectedOption } from "@/services/iqs.service";
-import { buildLayoutClasses } from "@/utils/componentLayoutBuilder";
-// import { buildComponentStyles } from "@/utils/componentStylesBuilder";
 
 const props = defineProps<{
   control: Field;
@@ -65,19 +58,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "update:modelValue", value: FieldValue): void;
 }>();
-
-// Control de las clases del componente.
-const controlLayoutClasses = computed(function () {
-  //console.log(props.control);
-  return buildLayoutClasses(props.control.layout);
-});
-// const controlStyleClasses = computed(function () {
-//   const styles = buildComponentStyles(props.control.component_style);
-//   console.log("ESTILOOOOOOOO");
-//   console.log(styles);
-
-//   return styles;
-// });
 
 const normalizedType = computed(() => {
   return props.control.type.trim().toLowerCase();
@@ -91,12 +71,11 @@ const isSelect = computed(() => {
   return normalizedType.value === "select" || normalizedType.value === "select linked";
 });
 
-// 2026-09-29 Santi. OBSOLETO.
-// const effectiveSize = computed(() => {
-//   const requestedSize = Number(props.control.size ?? 1);
-//   const minSize = registration.value?.minSize ?? 1;
-//   return Math.max(requestedSize, minSize);
-// });
+const effectiveSize = computed(() => {
+  const requestedSize = Number(props.control.size ?? 1);
+  const minSize = registration.value?.minSize ?? 1;
+  return Math.max(requestedSize, minSize);
+});
 
 const searchValue: Ref<DynamicModel | null> = ref(null);
 // 2026-08-17. Santi. Este es código nuevo creado por Alejandro. No entiendo exactamente que búscaba hacer con esto.
@@ -125,7 +104,7 @@ const searchValue: Ref<DynamicModel | null> = ref(null);
 watch(
   () => [props.control.field, props.modelValue, normalizedType.value],
   async ([field, value, type]) => {
-    //console.log("watch triggered with:", { field, value, type });
+    console.log("watch triggered with:", { field, value, type });
     // Solo nos interesa para SearchController.
     if (type !== "select linked") {
       return;

@@ -6,18 +6,30 @@ export type FieldValue = string | number | boolean | null;
 
 export interface Field {
   name: string;
-  size: string;
+  size?: string;
   type: FieldType;
   field: string | null;
   state: FieldState;
   title: string;
   columns?: TableColumn[];
+  // 2026-09-30 Adaptar ya que estos 3 quedarán obsoletos.
   inputClass?: string;
   labelClass?: string;
 
   placeholder?: string;
   mask?: string;
   options?: HeaderOption[];
+
+  // Image
+  src?: string;
+  alt?: string;
+  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
+
+  // 2026-09-30 Estilos del componente, que pasaremos por parametro.
+  // Hasta este punto se ha optado por 2 cosas a tomar en consideración
+  component_style: DynamicModel;
+  //style: DynamicModel;
+  layout: DynamicModel;
 }
 
 export interface TableColumn {
@@ -72,6 +84,14 @@ export type FieldState = "active" | "readOnly" | "disabled" | "hidden" | string;
 export interface ControlRegistration {
   component: Component;
   useFieldWrapper: boolean;
+  // 2026-09-29 Santi.
+  usesModelValue?: boolean;
+  // 2026-09-29 Esto nos permitirá crear un registro especifico para el control. Nosotros siempre le pasamos un field, pero queremos
+  // construir props especificas para dicho componente. De esta manera podemos tener un field utra generico, que siempre
+  // podremos utilizar, o adaptar según lo que querramos.
+  buildProps?: (control: Field) => Record<string, unknown>;
+
+  // 2026-09-29 Se irá en desuso esto.
   minSize?: number; // 2026-08-18 Se agrega la propiedad minSize para que los controles que necesiten un tamaño mínimo puedan indicarlo.
 }
 

@@ -18,6 +18,10 @@ const inputNumberPt = {
     h-10
     flex
     items-center
+    !bg-transparent
+    !border-0
+    !p-0
+
   `,
 
   "pt:pcInputText:root:class": `

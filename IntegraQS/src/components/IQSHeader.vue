@@ -1,5 +1,7 @@
 <template>
-  <div :class="headerStyle">
+  <!-- Todas las rows con una altura. -->
+  <!-- <div :class="headerStyle" class="auto-rows-[100px]"> -->
+  <div :class="headerStyle" class="auto-rows-[60px]">
     <IQSControlManager
       v-for="(field, index) in headerFields"
       :key="field.name ?? field.field ?? index"

@@ -1,5 +1,5 @@
 <template>
-  <div class="lookup-field" ref="searchControllerRef">
+  <div class="lookup-field min-w-0" ref="searchControllerRef">
     <!-- Campos principales -->
     <div class="lookup-field__controls">
       <!-- Identificador -->

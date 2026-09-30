@@ -1,6 +1,11 @@
 <template>
   <!-- <Toast /> -->
-  <div v-if="loaded" class="flex flex-col justify-between px-4 py-1 overflow-hidden scrollbar-none">
+  <!-- <div v-if="loaded" class="flex flex-col justify-between px-4 py-1 overflow-hidden scrollbar-none"> -->
+  <div
+    v-if="loaded"
+    class="flex w-full flex-col px-4 py-1 overflow-hidden scrollbar-none"
+    :class="props.modal ? 'h-full min-h-0' : 'min-h-dvh'"
+  >
     <header
       class="rounded-xl border border-slate-200 bg-white px-4 py-3 shadow-sm flex justify-between"
     >
@@ -237,6 +242,7 @@ async function loadData() {
     //3. Datos de detalles
     const detailsData: DynamicModel[] = [];
 
+    // 2026-09-29 Aquí se agregan las clases para nuestro container
     headerStyle.value = buildContainerClasses(winFormat.value.Header.style);
     headerModel.value = headerData[0] ?? {};
     detailsModel.value = detailsData;

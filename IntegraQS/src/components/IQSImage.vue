@@ -1,23 +1,19 @@
 <template>
-  <div class="w-full">
+  <!-- Aquí la imagen únicamente se encargará de ocupar todo el espacio que su padre ha asignado para ella. -->
+  <div class="h-full w-full overflow-hidden">
+    <!-- <div class="h-full -full min-h-0 min-w-0"> -->
     <img
-      v-if="src"
-      :src="src"
-      :alt="alt"
-      :style="{
-        width,
-        height,
-        objectFit,
-      }"
-      class="block max-w-full rounded-lg"
+      v-if="props.src"
+      :src="props.src"
+      :alt="props.alt"
       @click="handleClick"
       @load="handleLoad"
       @error="handleError"
+      class="h-full w-full object-contain"
     />
-
     <div
       v-else
-      class="flex h-32 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-sm text-slate-400"
+      class="flex h-full w-full items-center justify-center border border-slate-200 bg-slate-50 text-sm text-slate-400"
     >
       Sin imagen
     </div>
@@ -25,22 +21,17 @@
 </template>
 
 <script setup lang="ts">
-withDefaults(
-  defineProps<{
-    src?: string;
-    alt?: string;
-    width?: string;
-    height?: string;
-    objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
-  }>(),
-  {
-    src: "",
-    alt: "",
-    width: "100%",
-    height: "auto",
-    objectFit: "contain",
-  },
-);
+interface Props {
+  src?: string;
+  alt?: string;
+  objectFit?: "cover" | "contain" | "fill" | "none" | "scale-down";
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  src: "/Logo_Integra.jpg",
+  alt: "",
+  objectFit: "contain",
+});
 
 const emit = defineEmits<{
   click: [];
