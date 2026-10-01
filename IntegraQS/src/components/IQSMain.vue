@@ -93,7 +93,7 @@ import DataTable from "@/volt/DataTable.vue";
 import Column from "primevue/column";
 import Button from "@/volt/Button.vue";
 import { buildContainerClasses } from "@/utils/containerBuilder";
-import { computed } from "vue";
+// import { computed } from "vue";
 // import DataTable from "@/components/DataTable/DataTablePaginator.vue";
 // import DataColumn from "@/components/DataTable/DataColumn.vue";
 // Importación de componentes internos de inputs.
@@ -111,12 +111,6 @@ const props = withDefaults(
     model: () => ({}),
   },
 );
-
-const debugTabClasses = computed(() => {
-  return props.mainTabs.map((tab) => ({
-    classes: buildContainerClasses(tab.style),
-  }));
-});
 
 function getModelValue(field: Field): FieldValue {
   if (!field.field) {
